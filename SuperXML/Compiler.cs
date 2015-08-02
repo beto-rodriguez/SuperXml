@@ -14,6 +14,19 @@ namespace SuperXml
             return this;
         }
 
+        public Compiler SetDocumentFromFile(string path)
+        {
+            var readerSettings = new XmlReaderSettings { IgnoreComments = true };
+            using (var reader = XmlReader.Create(path, readerSettings))
+            {
+                var xml = new XmlDocument();
+                xml.Load(reader);
+
+                Node = xml.DocumentElement;
+            }
+            return this;
+        }
+
         public Compiler SetScope(Dictionary<string, dynamic> scope)
         {
             Scope = scope;
