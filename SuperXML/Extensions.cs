@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -145,10 +144,6 @@ namespace SuperXml
                 parameters.Add("p" + p, varValue);
                 p++;
             }
-#if(DEBUG)
-            Trace.WriteLine("Injection time " + (DateTime.Now - starti).TotalMilliseconds + "ms");
-            var starte = DateTime.Now;
-#endif
             if (string.IsNullOrWhiteSpace(expression)) return "";
             var e = new Expression(expression.Replace("&gt;", ">").Replace("&lt;", "<"));
             foreach (var parameter in parameters) e.Parameters[parameter.Key] = parameter.Value;
@@ -156,16 +151,10 @@ namespace SuperXml
             try
             {
                 var result = e.Evaluate().ToString();
-#if(DEBUG)
-                Trace.WriteLine("Evaluation time: " + (DateTime.Now - starte).TotalMilliseconds + "ms");
-#endif
                 return result;
             }
             catch
             {
-#if(DEBUG)
-                Trace.WriteLine("Evaluation time with exception thrown: " + (DateTime.Now - starte).TotalMilliseconds + "ms");
-#endif
                 return originalExpression;
             }
         }
