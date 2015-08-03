@@ -126,9 +126,6 @@ namespace SuperXml
         public static string EvaluateExpression(string expression, Dictionary<string, dynamic> scope)
         {
             var originalExpression = expression;
-#if(DEBUG)
-            var starti = DateTime.Now;
-#endif
             var p = 0;
             var parameters = new Dictionary<string, object>();
             var regex = new Regex(@"[\s|&=!<>+\-*/%^(]([A-Za-z_$]\w*(\.[A-Za-z_][\w()]*)*)");
