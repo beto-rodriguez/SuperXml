@@ -212,3 +212,5 @@ var compiler = new Compiler()
   .AddElementToScope("numbers", i);
 var compilation = await compiler.CompileAsync();
 ```
+#Debug
+when a property is not found in the Compiler Scope, Compiler will let you know wich name could not be found. it uses Trace.WriteLine(), so in visual studio you will find it in the output window.
