@@ -196,3 +196,10 @@ Input XML
 when you use `.AddElementToScope(Key, Value)`, value is dynamic, that means that it will be evaluated at runtime, so 
 it should support all kind of types, enums, classes, all elements and commands can be nested with no problem.
 #Performance
+to run the next bock of code takes 300ms aprox, so it takes 2ms per injection aprox. 
+```
+//i is an array of 150 integer numbers;
+var compiler = new Compiler()
+  .SetDocumentFromString("<Document><Element ForEach=\"number in numbers\">{{number}}</Element></Document>")
+  .AddElementToScope("numbers", i);
+```
