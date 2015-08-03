@@ -5,7 +5,7 @@ It uses a fast Compiler class that evaluates your initial markup and returns a n
 the compiler uses [NCalc](https://www.nuget.org/packages/ncalc/) and [Newtonsoft.Json](http://www.newtonsoft.com/json).
 
 #NuGet
-Install-Package SuperXML 
+`Install-Package SuperXML `
 
 #Basic Example
 Input XML
