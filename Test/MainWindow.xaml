@@ -1,0 +1,21 @@
+﻿<Window x:Class="Test.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="350" Width="525" WindowState="Maximized" Loaded="MainWindow_OnLoaded">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width=".5*"></ColumnDefinition>
+            <ColumnDefinition Width=".5*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+            <Button Click="CompileClick" Content="Compile" Width="60" HorizontalAlignment="Left" Margin="10"></Button>
+            <TextBlock Name="ResultBlock" TextWrapping="Wrap"></TextBlock>
+        </StackPanel>
+        <TextBox Grid.Column="0" Grid.Row="1" Name="SourceBox" Margin="10" VerticalScrollBarVisibility="Visible" AcceptsReturn="True"></TextBox>
+        <TextBlock Grid.Column="1" Grid.Row="1" Name="CompiledBox" Margin="10" TextWrapping="Wrap" ></TextBlock>
+    </Grid>
+</Window>
