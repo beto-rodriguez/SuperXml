@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace SuperXml
@@ -27,6 +28,14 @@ namespace SuperXml
             return this;
         }
 
+        public Compiler SetDocumentFromString(string str)
+        {
+            var doc = new XmlDocument();
+            doc.LoadXml(str);
+            Node = doc.DocumentElement;
+            return this;
+        }
+
         public Compiler SetScope(Dictionary<string, dynamic> scope)
         {
             Scope = scope;
@@ -45,6 +54,11 @@ namespace SuperXml
             Scope = Scope ?? new Dictionary<string, dynamic>();
             if (Node == null) return null;
             return Node.Compile(Scope);
+        }
+
+        public Task<XmlNode> CompileAsync()
+        {
+            return Task.Run(() => Compile());
         }
     }
 }

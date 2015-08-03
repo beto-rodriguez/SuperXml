@@ -35,36 +35,39 @@ namespace SuperXml
             if (!node.If(s)) return "";
 
             var xml = "";
-            var nodeMarkUp = "";
 
-            foreach (var expansion in node.ForEach(s))
+            if (node.NodeType == XmlNodeType.Element)
             {
-                if (node.NodeType == XmlNodeType.Element)
+                foreach (var expanded in node.ForEach(s))
                 {
                     var isExpression = node.Name == "Expression";
-
-                    xml = !isExpression
+                    xml += !isExpression
                         ? node.OuterXml.Substring(0, node.OuterXml.IndexOf(">", StringComparison.Ordinal) + 1)
                         : "";
-                    nodeMarkUp = xml;
+                    var nodeMarkUp = xml;
 
-                    if (!isExpression)
-                        foreach (Match e in IsExpressionRegex.Matches(xml))
-                            xml = xml.Replace("{{" + e.Value + "}}",
-                                EvaluateExpression(e.Value, expansion.Scope));
-
-                    xml = node.ChildNodes.Cast<XmlNode>()
-                        .Aggregate(xml, (current, child) => current + child.CompileString(expansion.Scope));
-                }
-                else
-                {
-                    foreach (Match e in IsExpressionRegex.Matches(node.InnerText))
+                    foreach (Match e in IsExpressionRegex.Matches(xml))
                     {
-                        xml = node.InnerText.Replace("{{" + e.Value + "}}", EvaluateExpression(e.Value, expansion.Scope));
-                    }   
+                        xml = xml.Replace("{{" + e.Value + "}}",
+                            EvaluateExpression(e.Value, expanded.Scope));
+                    }
+
+                    foreach (XmlNode child in node.ChildNodes)
+                    {
+                        xml += child.CompileString(expanded.Scope);
+                    }
+
+                    xml += (!IsXmlTagClosedRegex.IsMatch(nodeMarkUp) && !isExpression
+                        ? "</" + node.Name + ">"
+                        : "");
                 }
+                return xml;
             }
-            return xml + (IsXmlTagClosedRegex.IsMatch(nodeMarkUp) ? "" : "</" + node.Name + ">");
+            foreach (Match e in IsExpressionRegex.Matches(node.InnerText))
+            {
+                xml = node.InnerText.Replace("{{" + e.Value + "}}", EvaluateExpression(e.Value, s));
+            }
+            return xml;
         }
 
         private static IEnumerable<ExpandedNode> ForEach(this XmlNode node, Dictionary<string, dynamic> s)
