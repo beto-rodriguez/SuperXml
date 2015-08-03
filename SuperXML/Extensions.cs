@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -161,17 +162,26 @@ namespace SuperXml
 
         private static dynamic NavigateTo(dynamic obj, string propertyName)
         {
-            var name = propertyName.Split('.').ToList();
-            if (name.Count == 1) return obj;
-
-            var level = 1;
-            do
+            try
             {
-                obj = obj.GetType().GetProperty(name[level]).GetValue(obj, null);
-                level++;
-            } while (level < name.Count);
+                var name = propertyName.Split('.').ToList();
+                if (name.Count == 1) return obj;
 
-            return obj;
+                var level = 1;
+                do
+                {
+                    obj = obj.GetType().GetProperty(name[level]).GetValue(obj, null);
+                    level++;
+                } while (level < name.Count);
+
+                return obj;
+            }
+            catch (Exception)
+            {
+                Trace.WriteLine(propertyName + " not found. default value returned = false");
+                return false;
+            }
+            
         }
 
         private class ExpandedNode
