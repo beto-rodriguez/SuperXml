@@ -197,7 +197,7 @@ when you use `.AddElementToScope(Key, Value)`, value is dynamic, that means that
 it should support all kind of types, enums, classes, all elements and commands can be nested with no problem.
 #Performance
 to run the next bock of code takes 300ms aprox.
-the ForEach command should perfmorm slower than a simple injection since it creates a copy form the current scope 150 times (in this case)
+the ForEach command should perform slower than a simple injection since it creates a copy form the current scope 150 times (in this case)
 ```
 //i is an array of 150 integer numbers;
 var compiler = new Compiler()
