@@ -4,8 +4,10 @@ SuperXml is a light weight and fast library to use angular-like markup in xml fi
 It uses a fast Compiler class that evaluates your initial markup and returns a new xml file.
 the compiler uses [NCalc](https://www.nuget.org/packages/ncalc/) and [Newtonsoft.Json](http://www.newtonsoft.com/json).
 
-#Basic Example
+#NuGet
+Install-Package SuperXML 
 
+#Basic Example
 Input XML
 ```
 <Document>
