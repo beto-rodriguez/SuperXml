@@ -345,7 +345,7 @@ namespace SuperXml
                             if (!If()) continue;
                             var isTemplate = Name == TemplateKey;
                             if (!isTemplate) writer.WriteStartElement(Name);
-                            foreach (var attribute in Attributes.Where(attribute => attribute.Name != RepeaterKey))
+                            foreach (var attribute in Attributes.Where(attribute => attribute.Name != RepeaterKey && attribute.Name != IfKey))
                             {
                                 writer.WriteAttributeString(attribute.Name, Inject(attribute.Value));
                             }
