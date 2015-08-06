@@ -8,33 +8,77 @@ the compiler uses [NCalc](https://www.nuget.org/packages/ncalc/) and [Newtonsoft
 #NuGet
 `Install-Package SuperXML `
 
-#Basic Example
-Input XML
-```
-<Document>
-  <Text>
-    {{sayHello}} {{name}}
-  </Text>
-</Document>
-```
+#Example
+
 c#
 ```
-var compiled = new Compiler()
-    .SetDocumentFromFile(@"C:\Users\...\myXml.xml")
-    .AddElementToScope("sayHello", "Hello")
-    .AddElementToScope("name", "World").Compile();
+var compiler = new Compiler()
+                .AddElementToScope("name", "Excel")
+                .AddElementToScope("width", 100)
+                .AddElementToScope("height", 500)
+                .AddElementToScope("bounds", new[] {10, 0, 10, 0})
+                .AddElementToScope("elements", new []
+                {
+                    new { name = "John", age= 10 },
+                    new { name = "Maria", age= 57 },
+                    new { name = "Mark", age= 23 },
+                    new { name = "Edit", age= 82 },
+                    new { name = "Susan", age= 37 }
+                });
+
+var compiled = compiler.Compile(@"C:\...\myXml.xml")
 ```
+
+Input XML
+```
+<document>
+  <name>my name is {{name}}</name>
+  <width>{{width}}</width>
+  <height>{{height}}</height>
+  <area>{{width*height}}</area>
+  <padding>
+    <bound ForEach="bound in bounds">{{bound}}</bound>
+  </padding>
+  <content>
+    <element ForEach="element in elements" If="element.age > 25">
+      <name>{{element.name}}</name>
+      <name>{{element.age}}</name>
+    </element>
+  </content> 
+</document>
+```
+
 Compiled
 ```
-<Document>
-  <Text>
-    Hello World
-  </Text>
-</Document>
+<document>
+  <name>my name is Excel</name>
+  <width>100</width>
+  <height>500</height>
+  <area>50000</area>
+  <padding>
+    <bound>10</bound>
+    <bound>0</bound>
+    <bound>10</bound>
+    <bound>0</bound>
+  </padding>
+  <content>
+    <element>
+      <name>Maria</name>
+      <name>57</name>
+    </element>
+    <element>
+      <name>Edit</name>
+      <name>82</name>
+    </element>
+    <element>
+      <name>Susan</name>
+      <name>37</name>
+    </element>
+  </content>
+</document>
 ```
 #Math and Logical Operatos
 math operations are evaluated by Ncalc, basically it works with the same syntax used in C#. for more info go to https://ncalc.codeplex.com/
-Input XML
 ```
 <Document>
   <Math>
@@ -72,15 +116,6 @@ Input XML
   </Text>
 </Document>
 ```
-c#
-```
-//user is a class with 3 properties, name(string), lastName(string) and age(int).
-User user = new User {name = "Roger", lastName = "Martinez", age = 20};
-
-var compiled = new Compiler()
-    .SetDocumentFromFile(@"C:\Users\...\myXml.xml")
-    .AddElementToScope("user", user).Compile();
-```
 Compiled
 ```
 <Document>
@@ -90,127 +125,33 @@ Compiled
 </Document>
 ```
 #If Command
-commands do not need {{ }}, they are already expressions.
-Input XML
-```
-<Document>
-  <Text If="number > .5">
-    number is more than .5
-  </Text>
-  <Text If="number <= .5">
-    number is less than .5
-  </Text>
-</Document>
-```
-c#
-```
-var compiled = new Compiler()
-    .SetDocumentFromFile(@"C:\Users\...\myXml.xml")
-    .AddElementToScope("number", .2)
-    .Compile();
-```
-Compiled
-```
-<Document>
-  <Text>
-    number is less than .5
-  </Text>
-</Document>
-```
+Evaluates if an XmlNode should be included according to condition.
+condition can include everithing supported by ncalc (most of common things).
 #ForEach Command
-commands do not need {{ }}, they are already expressions.
-Input XML
+Repeats an Xmlnode the same number of times as elements in the array.
+#TemplateBlock Command
+this command is usefull when you need to group elements into a command, this tag is erased when compiled. Example:
 ```
 <Document>
-  <!--Example from scope-->
-  <Node ForEach="node in nodes">
-    {{node}}
-  </Node>
-  <!--Example from markup, use json format it is deserialized by Newtonsoft.Json-->
-  <Node ForEach="node in [1,2,3]"> 
-    {{node}}
-  </Node
-  <!--more markup exmaples:
-    objects: [{name: 'mark', age: 20}, {name: 'juliet', age: 50}, {name: 'unknown', age: 56}],
-    strings: ['hello', 'world']
-  -->
-</Document>
-```
-c#
-```
-int[] arrayExample = {1, 2, 3};
-var compiled = new Compiler()
-    .SetDocumentFromFile(@"C:\Users\...\myXml.xml")
-    .AddElementToScope("nodes", arrayExample)
-    .Compile();
-```
-Compiled
-```
-<Document>
-  <!--Example from scope-->
-  <Node>
-    1
-  </Node>
-  <Node>
-    2
-  </Node>
-  <Node>
-    3
-  </Node>
-  <!--Example from markup, use json format it is deserialized by Newtonsoft.Json-->
-  <Node> 
-    1
-  </Node
-  <Node> 
-    2
-  </Node
-  <Node> 
-    3
-  </Node
-  <!--more markup exmaples:
-    objects: [{name: 'mark', age: 20}, {name: 'juliet', age: 50}, {name: 'unknown', age: 56}],
-    strings: ['hello', 'world']
-  -->
-</Document>
-```
-#Expression Command
-Expression command is usefull when you need to group elements into a command, this tag is erased when compiled
-Input XML
-```
-<Document>
-  <Expression ForEach="number in [1,2,3]">
+  <TemplateBlock ForEach="number in [1,2,3]">
     <text1></text1>
     <text2></text2>
     ...
     <text3></text3>
-  </Expression>
-  <Expression If="8 > 7">
+  </TemplateBlock>
+  <TemplateBlock If="8 > 7">
     <text1></text1>
     <text2></text2>
     ...
     <text3></text3>
-  </Expression>
+  </TemplateBlock>
 </Document>
 ```
 #Supported Types:
-when you use `.AddElementToScope(Key, Value)`, value is dynamic, that means that it will be evaluated at runtime, so 
+When you use `.AddElementToScope(Key, Value)`, Value is dynamic, that means that it will be evaluated at runtime, so 
 it should support all kind of types, enums, classes, all elements and commands can be nested with no problem.
 #Performance
-to run the next bock of code takes 300ms aprox.
-the ForEach command should perform slower than a simple injection since it creates a copy form the current scope 150 times (in this case)
-```
-//i is an array of 150 integer numbers;
-var compiler = new Compiler()
-  .SetDocumentFromString("<Document><Element ForEach=\"number in numbers\">{{number}}</Element></Document>")
-  .AddElementToScope("numbers", i).Compile();
-```
-to keep everything smooth you can run the async compiler too.
-```
-//i is an array of 150 integer numbers;
-var compiler = new Compiler()
-  .SetDocumentFromString("<Document><Element ForEach=\"number in numbers\">{{number}}</Element></Document>")
-  .AddElementToScope("numbers", i);
-var compilation = await compiler.CompileAsync();
+from `<element ForEach="element in elements">{{element}}</element>` and elements equals to an array of 10,000 integers Core i5 @ 2.3 GHz took an average of 300 ms to compile in release.
 ```
 #Debug
 when a property is not found in the Compiler Scope, Compiler will let you know wich name could not be found. it uses Trace.WriteLine(), so in visual studio you will find it in the output window.
