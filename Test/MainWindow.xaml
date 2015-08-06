@@ -16,6 +16,8 @@
             <TextBlock Name="ResultBlock" TextWrapping="Wrap"></TextBlock>
         </StackPanel>
         <TextBox Grid.Column="0" Grid.Row="1" Name="SourceBox" Margin="10" VerticalScrollBarVisibility="Visible" AcceptsReturn="True"></TextBox>
-        <TextBlock Grid.Column="1" Grid.Row="1" Name="CompiledBox" Margin="10" TextWrapping="Wrap" ></TextBlock>
+        <TextBlock Grid.Column="1" Grid.Row="1" Name="CompiledBox" Margin="10" TextWrapping="Wrap" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+         ScrollViewer.VerticalScrollBarVisibility="Auto"
+         ScrollViewer.CanContentScroll="True"></TextBlock>
     </Grid>
 </Window>
