@@ -125,10 +125,15 @@ Compiled
 </Document>
 ```
 #If Command
-Evaluates if an XmlNode should be included according to condition.
-condition can include everithing supported by ncalc (most of common things).
+Evaluates if an XmlNode should be included according to condition. condition can include everything supported by ncalc (most of common things). examples:
+* <MyElement If="10 > 6"/> numeric.
+* <MyElement If="aValueFromScope == 'visible'"/> string and from scope
+* <MyElement If="10 > h && aValueFromScope == 'visible'"/> another example
+
 #ForEach Command
-Repeats an Xmlnode the same number of times as elements in the array.
+Repeats an Xmlnode the same number of times as elements in the array. Example
+* <MyElement ForEach="number in numbers" /> where numbers is an array in the scope.
+
 #TemplateBlock Command
 this command is usefull when you need to group elements into a command, this tag is erased when compiled. Example:
 ```
@@ -152,6 +157,6 @@ When you use `.AddElementToScope(Key, Value)`, Value is dynamic, that means that
 it should support all kind of types, enums, classes, all elements and commands can be nested with no problem.
 #Performance
 from `<element ForEach="element in elements">{{element}}</element>` and elements equals to an array of 10,000 integers Core i5 @ 2.3 GHz took an average of 300 ms to compile in release.
-```
+
 #Debug
 when a property is not found in the Compiler Scope, Compiler will let you know wich name could not be found. it uses Trace.WriteLine(), so in visual studio you will find it in the output window.
