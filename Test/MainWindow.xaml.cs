@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using SuperXml;
@@ -29,7 +30,19 @@ namespace Test
             };
 
             var compiler = new Compiler()
-                .AddElementToScope("numbers", populate(10000));
+                .AddElementToScope("name", "Excel")
+                .AddElementToScope("width", 100)
+                .AddElementToScope("height", 500)
+                .AddElementToScope("bounds", new[] {10, 0, 10, 0})
+                .AddElementToScope("elements", new []
+                {
+                    new { name = "John", age= 10 },
+                    new { name = "Maria", age= 57 },
+                    new { name = "Mark", age= 23 },
+                    new { name = "Edit", age= 82 },
+                    new { name = "Susan", age= 37 }
+                });
+
 
             var startedTime = DateTime.Now;
             var compiled = compiler.Compile(new StringReader(SourceBox.Text));
