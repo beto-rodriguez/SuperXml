@@ -54,11 +54,18 @@ namespace SuperXml
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        public XElement Compile(string uri)
+        public StringBuilder Compile(string uri)
         {
-            using (var r = XmlReader.Create(uri))
+            using (var reader = XmlReader.Create(uri))
             {
-                return _compile(r);
+                var output = new StringBuilder();
+                var ws = new XmlWriterSettings { Indent = true };
+                using (var writer = XmlWriter.Create(output, ws))
+                {
+                    var compiled = _compile(reader);
+                    compiled.Run(writer);
+                }
+                return output;
             }
         }
 
@@ -67,11 +74,18 @@ namespace SuperXml
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
-        public XElement Compile(Stream stream)
+        public StringBuilder Compile(Stream stream)
         {
-            using (var r = XmlReader.Create(stream))
+            using (var reader = XmlReader.Create(stream))
             {
-                return _compile(r);
+                var output = new StringBuilder();
+                var ws = new XmlWriterSettings { Indent = true };
+                using (var writer = XmlWriter.Create(output, ws))
+                {
+                    var compiled = _compile(reader);
+                    compiled.Run(writer);
+                }
+                return output;
             }
         }
 
@@ -80,7 +94,7 @@ namespace SuperXml
         /// </summary>
         /// <param name="textReader"></param>
         /// <returns></returns>
-        public string Compile(TextReader textReader)
+        public StringBuilder Compile(TextReader textReader)
         {
             using (var reader = XmlReader.Create(textReader))
             {
@@ -88,10 +102,10 @@ namespace SuperXml
                 var ws = new XmlWriterSettings {Indent = true};
                 using (var writer = XmlWriter.Create(output, ws))
                 {
-                    var compiled = _compileV3(reader);
+                    var compiled = _compile(reader);
                     compiled.Run(writer);
                 }
-                return output.ToString();
+                return output;
             }
         }
 
@@ -100,27 +114,19 @@ namespace SuperXml
         /// </summary>
         /// <param name="xmlReader"></param>
         /// <returns></returns>
-        public XElement Compile(XmlReader xmlReader)
+        public StringBuilder Compile(XmlReader xmlReader)
         {
-            return _compile(xmlReader);
+            var output = new StringBuilder();
+            var ws = new XmlWriterSettings { Indent = true };
+            using (var writer = XmlWriter.Create(output, ws))
+            {
+                var compiled = _compile(xmlReader);
+                compiled.Run(writer);
+            }
+            return output;
         }
 
-        private XElement _compile(XmlReader reader)
-        {
-#if (DEBUG)
-            Trace.WriteLine("<<New Compilation Job Started>>");
-            var startJob = DateTime.Now;
-#endif
-            if (!reader.Read()) throw new FileNotFoundException("Root document was not found.");
-            var root = XNode.ReadFrom(reader) as XElement;
-            //var compiled = root(Scope, true);
-#if (DEBUG)
-            Trace.WriteLine("<<Compilation Job Finished in " + (DateTime.Now - startJob).TotalMilliseconds + "ms  >>");
-#endif
-            return null;
-        }
-
-        private CompilationElement _compileV3(XmlReader reader)
+        private CompilationElement _compile(XmlReader reader)
         {
             var element = new CompilationElement(BufferCommands.NewDocument) {Scope = Scope};
             while (reader.Read())
