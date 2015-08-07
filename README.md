@@ -27,6 +27,7 @@ var compiler = new Compiler()
                     new { name = "Edit", age= 82 },
                     new { name = "Susan", age= 37 }
                 });
+                //you can add enums, classes, instegers, arrays, it does not matter. just add them.
 
 //Compile from a Xml File
 var compiled = compiler.Compile(@"C:\...\myXml.xml").ToString
