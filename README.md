@@ -3,7 +3,7 @@
 SuperXml is a light weight and fast library to use angular-like markup in xml files.
 Useful to create Xml templates.
 It uses a fast Compiler class that evaluates your initial markup and returns a new xml file.
-the compiler uses [NCalc](https://www.nuget.org/packages/ncalc/) and [Newtonsoft.Json](http://www.newtonsoft.com/json).
+the compiler uses [NCalc](https://www.nuget.org/packages/ncalc/).
 
 #NuGet
 `Install-Package SuperXML `
@@ -26,7 +26,7 @@ var compiler = new Compiler()
                     new { name = "Susan", age= 37 }
                 });
 
-var compiled = compiler.Compile(@"C:\...\myXml.xml")
+var compiled = compiler.Compile(@"C:\...\myXml.xml").ToString()
 ```
 
 Input XML
