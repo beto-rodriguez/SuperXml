@@ -6,8 +6,8 @@ It uses a fast Compiler class that evaluates your initial markup and returns a n
 the compiler uses [NCalc](https://www.nuget.org/packages/ncalc/).
 
 #NuGet
+https://www.nuget.org/packages/SuperXML/
 `Install-Package SuperXML `
-
 #Example
 
 c#
