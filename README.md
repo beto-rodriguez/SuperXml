@@ -7,7 +7,9 @@ the compiler uses [NCalc](https://www.nuget.org/packages/ncalc/).
 
 #NuGet
 https://www.nuget.org/packages/SuperXML/
-`Install-Package SuperXML `
+```
+Install-Package SuperXML 
+```
 #Example
 
 c#
