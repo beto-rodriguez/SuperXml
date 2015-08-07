@@ -116,7 +116,7 @@ Compiled
 </Document>
 ```
 #Dot Notation
-it has no limitation you can use a long path as necesary, you can use all kind of types, arrays, classes etc.
+Dot notation is usefull when you add clases to compiler Scope, in the next example we added an User class with a string property `name`, a string property `lastName` and a integer property `age`, you can add any type and nest as many classes as necesary.
 Input XML
 ```
 <Document>
