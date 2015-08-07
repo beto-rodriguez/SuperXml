@@ -32,10 +32,10 @@ var compiler = new Compiler()
                 //if the path exist it will compile correctly (myclass.myproperty.myfield)
 
 //Compile from a Xml File
-var compiled = compiler.Compile(@"C:\...\myXml.xml").ToString
+string compiled = compiler.Compile(@"C:\...\myXml.xml").ToString()
 
 //Or from a string
-var compiled = compiler.Compile(new StringReader("<doc><.../></doc>"));
+string compiled = compiler.Compile(new StringReader("<doc><.../></doc>")).ToString();
 ```
 
 Input XML
