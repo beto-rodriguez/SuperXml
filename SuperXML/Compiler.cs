@@ -6,9 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-using System.Xml.Linq;
 using NCalc;
-using Newtonsoft.Json;
 
 namespace SuperXml
 {
@@ -50,7 +48,7 @@ namespace SuperXml
         }
 
         /// <summary>
-        /// Compiles t XElement with specified URI.
+        /// Compiles with specified URI.
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
@@ -70,7 +68,7 @@ namespace SuperXml
         }
 
         /// <summary>
-        /// Compiles to a XElement using the specified stream with default settings. 
+        /// Compiles using the specified stream with default settings. 
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
@@ -90,7 +88,7 @@ namespace SuperXml
         }
 
         /// <summary>
-        /// Compiles to XElement by using the specified text reader. 
+        /// Compiles by using the specified text reader. 
         /// </summary>
         /// <param name="textReader"></param>
         /// <returns></returns>
@@ -110,7 +108,7 @@ namespace SuperXml
         }
 
         /// <summary>
-        /// Compiles to XElement with a specified XmlReader
+        /// Compiles with a specified XmlReader
         /// </summary>
         /// <param name="xmlReader"></param>
         /// <returns></returns>
@@ -184,8 +182,8 @@ namespace SuperXml
             }
 
             private BufferCommands Type { get; }
-            public string Name { get; set; }
-            public string Value { get; set; }
+            public string Name { private get; set; }
+            public string Value { private get; set; }
             public List<AttributeModel> Attributes { get; private set; }
             public CompilationElement Parent
             {
@@ -198,14 +196,6 @@ namespace SuperXml
             }
             public List<CompilationElement> Children { get; private set; }
             public Dictionary<string, dynamic> Scope { get; set; }
-            public bool RequiresExpansion
-            {
-                get
-                {
-                    return Attributes.Any(x => x.Name == RepeaterKey);
-                }
-            }
-
             private dynamic GetValueFromScope(string propertyName)
             {
                 try
@@ -259,9 +249,7 @@ namespace SuperXml
                 var match = _forEachRegex.Match(expression);
                 var repeater = match.Groups[1].ToString();
                 var scopeName = match.Groups[3].ToString();
-                var items = scopeName.Length > 0
-                    ? GetValueFromScope(scopeName)
-                    : JsonConvert.DeserializeObject<dynamic>(match.Groups[2].ToString());
+                var items = GetValueFromScope(scopeName);
 
                 var i = 0;
 
@@ -325,21 +313,7 @@ namespace SuperXml
                     return originalExpression;
                 }
             }
-
-            private CompilationElement Clone(CompilationElement source, CompilationElement parent, Dictionary<string,dynamic> scope)
-            {
-                var clone = new CompilationElement(source.Type)
-                {
-                    Name = source.Name,
-                    Value = source.Value,
-                    Attributes = source.Attributes,
-                    Parent = parent,
-                    Scope = scope,
-                    Children = source.Children
-                };
-                return clone;
-            }
-
+            
             public void Run(XmlWriter writer)
             {
                 switch (Type)
