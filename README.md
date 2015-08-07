@@ -27,7 +27,7 @@ var compiler = new Compiler()
                     new { name = "Edit", age= 82 },
                     new { name = "Susan", age= 37 }
                 });
-                //you can add enums, classes, instegers, arrays, it does not matter. just add them.
+                //you can add enums, classes, integers, arrays, arrays of classes with nested clases... it does not matter. just add them. if the path exist it will compile correctly (myclass.myproperty.myfield)
 
 //Compile from a Xml File
 var compiled = compiler.Compile(@"C:\...\myXml.xml").ToString
