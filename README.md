@@ -26,7 +26,11 @@ var compiler = new Compiler()
                     new { name = "Susan", age= 37 }
                 });
 
-var compiled = compiler.Compile(@"C:\...\myXml.xml").ToString()
+//Compile from a Xml File
+var compiled = compiler.Compile(@"C:\...\myXml.xml").ToString
+
+//Or from a string
+var compiled = compiler.Compile(new StringReader("<doc><.../></doc>"));
 ```
 
 Input XML
