@@ -43,7 +43,14 @@ namespace SuperXml
 
         public Compiler AddElementToScope(string key, dynamic value)
         {
-            Scope.Add(key, value);
+            if (Scope.ContainsKey(key))
+            {
+                Scope[key] = value;
+            }
+            else
+            {
+                Scope.Add(key, value);
+            }
             return this;
         }
 
