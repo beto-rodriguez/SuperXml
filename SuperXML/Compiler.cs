@@ -58,8 +58,12 @@ namespace SuperXml
         /// Compiles with specified URI.
         /// </summary>
         /// <param name="uri"></param>
+        /// <param name="root">
+        ///     Set the root to compile, to improve performance. 
+        ///     example: x => x.Children.First(y => x.Name == "MyElement")
+        /// </param>
         /// <returns></returns>
-        public StringBuilder Compile(string uri)
+        public string Compile(string uri, Func<XmlElement, XmlElement> root = null)
         {
             using (var reader = XmlReader.Create(uri))
             {
@@ -68,9 +72,13 @@ namespace SuperXml
                 using (var writer = XmlWriter.Create(output, ws))
                 {
                     var compiled = _compile(reader);
+                    if (root != null)
+                    {
+                        compiled = root(compiled);
+                    }
                     compiled.Run(writer);
                 }
-                return output;
+                return output.ToString();
             }
         }
 
@@ -78,8 +86,12 @@ namespace SuperXml
         /// Compiles using the specified stream with default settings. 
         /// </summary>
         /// <param name="stream"></param>
+        /// <param name="root">
+        ///     Set the root to compile, to improve performance. 
+        ///     example: x => x.Children.First(y => x.Name == "MyElement")
+        /// </param>
         /// <returns></returns>
-        public StringBuilder Compile(Stream stream)
+        public string Compile(Stream stream, Func<XmlElement, XmlElement> root = null)
         {
             using (var reader = XmlReader.Create(stream))
             {
@@ -88,9 +100,13 @@ namespace SuperXml
                 using (var writer = XmlWriter.Create(output, ws))
                 {
                     var compiled = _compile(reader);
+                    if (root != null)
+                    {
+                        compiled = root(compiled);
+                    }
                     compiled.Run(writer);
                 }
-                return output;
+                return output.ToString();
             }
         }
 
@@ -98,8 +114,12 @@ namespace SuperXml
         /// Compiles by using the specified text reader. 
         /// </summary>
         /// <param name="textReader"></param>
+        /// <param name="root">
+        ///     Set the root to compile, to improve performance. 
+        ///     example: x => x.Children.First(y => x.Name == "MyElement")
+        /// </param>
         /// <returns></returns>
-        public StringBuilder Compile(TextReader textReader)
+        public string Compile(TextReader textReader, Func<XmlElement, XmlElement> root = null)
         {
             using (var reader = XmlReader.Create(textReader))
             {
@@ -108,9 +128,13 @@ namespace SuperXml
                 using (var writer = XmlWriter.Create(output, ws))
                 {
                     var compiled = _compile(reader);
+                    if (root != null)
+                    {
+                        compiled = root(compiled);
+                    }
                     compiled.Run(writer);
                 }
-                return output;
+                return output.ToString();
             }
         }
 
@@ -118,28 +142,36 @@ namespace SuperXml
         /// Compiles with a specified XmlReader
         /// </summary>
         /// <param name="xmlReader"></param>
+        /// <param name="root">
+        ///     Set the root to compile, to improve performance. 
+        ///     example: x => x.Children.First(y => x.Name == "MyElement")
+        /// </param>
         /// <returns></returns>
-        public StringBuilder Compile(XmlReader xmlReader)
+        public string Compile(XmlReader xmlReader, Func<XmlElement, XmlElement> root = null)
         {
             var output = new StringBuilder();
             var ws = new XmlWriterSettings { Indent = true };
             using (var writer = XmlWriter.Create(output, ws))
             {
                 var compiled = _compile(xmlReader);
+                if (root != null)
+                {
+                    compiled = root(compiled);
+                }
                 compiled.Run(writer);
             }
-            return output;
+            return output.ToString();
         }
 
-        private CompilationElement _compile(XmlReader reader)
+        private XmlElement _compile(XmlReader reader)
         {
-            var element = new CompilationElement(BufferCommands.NewDocument) {Scope = Scope};
+            var element = new XmlElement(BufferCommands.NewDocument) {Scope = Scope};
             while (reader.Read())
             {
                 switch (reader.NodeType)
                 {
                     case XmlNodeType.Element:
-                        element = new CompilationElement(BufferCommands.WriteStartElement)
+                        element = new XmlElement(BufferCommands.NewElement)
                         {
                             Name = reader.Name,
                             Parent = element
@@ -147,7 +179,7 @@ namespace SuperXml
                         for (var i = 0; i < reader.AttributeCount; i++)
                         {
                             reader.MoveToAttribute(i);
-                            element.Attributes.Add(new AttributeModel
+                            element.Attributes.Add(new XmlAttribute
                             {
                                 Name = reader.Name,
                                 Value = reader.Value
@@ -157,7 +189,7 @@ namespace SuperXml
                         if (reader.IsEmptyElement) goto case XmlNodeType.EndElement;
                         break;
                     case XmlNodeType.Text:
-                        new CompilationElement(BufferCommands.WriteString)
+                        new XmlElement(BufferCommands.StringContent)
                         {
                             Value = reader.Value,
                             Parent = element
@@ -177,22 +209,31 @@ namespace SuperXml
             return root;
         }
         
-        private class CompilationElement
+        public class XmlElement
         {
-            private CompilationElement _parent;
-            public CompilationElement(BufferCommands type)
+            private XmlElement _parent;
+            public XmlElement(BufferCommands type)
             {
-                Attributes = new List<AttributeModel>();
-                Children = new List<CompilationElement>();
+                Attributes = new List<XmlAttribute>();
+                Children = new List<XmlElement>();
                 Type = type;
                 Scope = new Dictionary<string, dynamic>();
             }
 
             private BufferCommands Type { get; }
+            /// <summary>
+            /// Name of the Element
+            /// </summary>
             public string Name { private get; set; }
+            /// <summary>
+            /// Content of the Element
+            /// </summary>
             public string Value { private get; set; }
-            public List<AttributeModel> Attributes { get; private set; }
-            public CompilationElement Parent
+            /// <summary>
+            /// Attributes in the Element
+            /// </summary>
+            public List<XmlAttribute> Attributes { get;}
+            public XmlElement Parent
             {
                 get { return _parent; }
                 set
@@ -201,7 +242,13 @@ namespace SuperXml
                     _parent?.Children.Add(this);
                 }
             }
-            public List<CompilationElement> Children { get; private set; }
+            /// <summary>
+            /// Gets the children of this element
+            /// </summary>
+            public List<XmlElement> Children { get;}
+            /// <summary>
+            /// Scope of current Element.
+            /// </summary>
             public Dictionary<string, dynamic> Scope { get; set; }
             private dynamic GetValueFromScope(string propertyName)
             {
@@ -325,7 +372,7 @@ namespace SuperXml
             {
                 switch (Type)
                 {
-                    case BufferCommands.WriteStartElement:
+                    case BufferCommands.NewElement:
                         foreach (var scope in Scopes())
                         {
                             Scope = scope ?? Scope;
@@ -343,23 +390,23 @@ namespace SuperXml
                             if (!isTemplate) writer.WriteEndElement();
                         }
                         break;
-                    case BufferCommands.WriteString:
+                    case BufferCommands.StringContent:
                         writer.WriteString(Inject(Value));
                         break;
                 }
             }
         }
 
-        private class AttributeModel
+        public class XmlAttribute
         {
             public string Name { get; set; }
             public string Value { get; set; }
         }
 
-        private enum BufferCommands
+        public enum BufferCommands
         {
-            WriteStartElement,
-            WriteString,
+            NewElement,
+            StringContent,
             NewDocument
         }
     }
