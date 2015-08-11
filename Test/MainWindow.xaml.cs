@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using SuperXml;
 
@@ -19,16 +18,6 @@ namespace Test
 
         private void CompileClick(object sender, RoutedEventArgs e)
         {
-            Func<int, int[]> populate = x =>
-            {
-                var l = new List<int>();
-                for (int j = 0; j < x; j++)
-                {
-                    l.Add(j);
-                }
-                return l.ToArray();
-            };
-
             var compiler = new Compiler()
                 .AddElementToScope("name", "Excel")
                 .AddElementToScope("width", 100)
@@ -45,14 +34,20 @@ namespace Test
 
 
             var startedTime = DateTime.Now;
-            var compiled = compiler.Compile(new StringReader(SourceBox.Text));
+            //var compiled = compiler.Compile(new StringReader(SourceBox.Text));
+            var onlyContet = compiler.Compile(new StringReader(SourceBox.Text),
+                x => x.Children.First(y => y.Name == "content"));
             ResultBlock.Text = "Compilation total time " + (DateTime.Now - startedTime).TotalMilliseconds + "ms";
 
-            CompiledBox.Text = compiled.ToString();
+            CompiledBox.Text = onlyContet;
         }
 
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
+            using (var sr = new StreamReader(AppDomain.CurrentDomain.BaseDirectory + "testFile.xml"))
+            { 
+                SourceBox.Text = sr.ReadToEnd();
+            }
         }
     }
 }

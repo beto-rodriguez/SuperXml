@@ -33,6 +33,8 @@ namespace SuperXml
         private static Regex _forEachRegex;
         private static Regex _varNameRegex;
 
+        public XmlWriterSettings XmlWriterSettings { get; set; }
+
         public Dictionary<string, dynamic> Scope { get; set; }
 
         public Compiler SetScope(Dictionary<string, dynamic> scope)
@@ -68,7 +70,7 @@ namespace SuperXml
             using (var reader = XmlReader.Create(uri))
             {
                 var output = new StringBuilder();
-                var ws = new XmlWriterSettings { Indent = true };
+                var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
                 using (var writer = XmlWriter.Create(output, ws))
                 {
                     var compiled = _compile(reader);
@@ -96,7 +98,7 @@ namespace SuperXml
             using (var reader = XmlReader.Create(stream))
             {
                 var output = new StringBuilder();
-                var ws = new XmlWriterSettings { Indent = true };
+                var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
                 using (var writer = XmlWriter.Create(output, ws))
                 {
                     var compiled = _compile(reader);
@@ -124,7 +126,7 @@ namespace SuperXml
             using (var reader = XmlReader.Create(textReader))
             {
                 var output = new StringBuilder();
-                var ws = new XmlWriterSettings {Indent = true};
+                var ws = XmlWriterSettings ?? new XmlWriterSettings {Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true};
                 using (var writer = XmlWriter.Create(output, ws))
                 {
                     var compiled = _compile(reader);
@@ -150,7 +152,7 @@ namespace SuperXml
         public string Compile(XmlReader xmlReader, Func<XmlElement, XmlElement> root = null)
         {
             var output = new StringBuilder();
-            var ws = new XmlWriterSettings { Indent = true };
+            var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
             using (var writer = XmlWriter.Create(output, ws))
             {
                 var compiled = _compile(xmlReader);
@@ -224,11 +226,11 @@ namespace SuperXml
             /// <summary>
             /// Name of the Element
             /// </summary>
-            public string Name { private get; set; }
+            public string Name { get; set; }
             /// <summary>
             /// Content of the Element
             /// </summary>
-            public string Value { private get; set; }
+            public string Value { get; set; }
             /// <summary>
             /// Attributes in the Element
             /// </summary>

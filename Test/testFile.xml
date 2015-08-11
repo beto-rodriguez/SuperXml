@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+<document>
+  <name>my name is {{name}}</name>
+  <width>{{width}}</width>
+  <height>{{height}}</height>
+  <area>{{width*height}}</area>
+  <padding>
+    <bound ForEach="bound in bounds">{{bound}}</bound>
+  </padding>
+  <content>
+    <element ForEach="element in elements" If="element.age > 25">
+      <name>{{element.name}}</name>
+      <name>{{element.age}}</name>
+    </element>
+  </content> 
+</document>
