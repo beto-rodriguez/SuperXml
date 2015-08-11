@@ -167,5 +167,12 @@ it should support all kind of types, enums, classes, all elements and commands c
 #Performance
 from `<element ForEach="element in elements">{{element}}</element>` and elements equals to an array of 10,000 integers Core i5 @ 2.3 GHz took an average of 300 ms to compile in release.
 
+Compile only what you need
+```
+var onlyContet = compiler.Compile(new StringReader(SourceBox.Text), 
+                 x => x.Children.First(y => y.Name == "content")); 
+```
+
+
 #Debug
 when a property is not found in the Compiler Scope, Compiler will let you know wich name could not be found. it uses Trace.WriteLine(), so in visual studio you will find it in the output window.
