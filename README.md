@@ -1,6 +1,6 @@
 # Templator (Tor)
 
-Templator (Tor) is just a light weight and easy to use templating engine library, useful to create string, xml and Html Templates. Its is a native alternative for http://www.stringtemplate.org/, with a intuitive markup.
+Templator (Tor) is just a light weight and easy to use templating engine library, useful to create string, xml and Html Templates. lets see what I can do for you
 
 #Install From Nuget 
 https://www.nuget.org/packages/Tor/
