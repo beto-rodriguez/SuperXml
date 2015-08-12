@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Windows;
-using SuperXml;
+using Templator;
 
 namespace Test
 {
@@ -34,18 +33,27 @@ namespace Test
 
 
             var startedTime = DateTime.Now;
-            var compiled = compiler.Compile(new StringReader(SourceBox.Text));
+            //var compiled = compiler.CompileXml(new StringReader(SourceBox.Text));
             //var onlyContet = compiler.Compile(new StringReader(SourceBox.Text),
             //    x => x.Children.First(y => y.Name == "content"));
+            var compiledAsString = compiler.CompileString(SourceBox.Text);
             ResultBlock.Text = "Compilation total time " + (DateTime.Now - startedTime).TotalMilliseconds + "ms";
 
-            CompiledBox.Text = compiled;
+            CompiledBox.Text = compiledAsString;
         }
 
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            using (var sr = new StreamReader(AppDomain.CurrentDomain.BaseDirectory + "testFile.xml"))
-            { 
+            //Xml Example
+            //using (var sr = new StreamReader(AppDomain.CurrentDomain.BaseDirectory + "testFile.xml"))
+            //{ 
+            //    SourceBox.Text = sr.ReadToEnd();
+            //}
+
+
+            //String Exmaple
+            using (var sr = new StreamReader(AppDomain.CurrentDomain.BaseDirectory + "TextFile.txt"))
+            {
                 SourceBox.Text = sr.ReadToEnd();
             }
         }

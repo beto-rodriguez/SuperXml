@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using NCalc;
 
-namespace SuperXml
+namespace Templator
 {
     public class Compiler
     {
@@ -17,7 +17,7 @@ namespace SuperXml
             Scope = new Dictionary<string, dynamic>();
             RepeaterKey = "Tor.Repeat";
             IfKey = "Tor.If";
-            TemplateKey = "Tor.B";
+            TemplateKey = "Tor.Run";
             _isExpressionRegex = new Regex("(?<={{).*?(?=}})");
             _forEachRegex =
                 new Regex(@"^\s*([a-zA-Z_]+[\w]*)\s+in\s+(([a-zA-Z][\w]*(\.[a-zA-Z][\w]*)*)|\[(.+)(,\s*.+)*\])\s*$",
@@ -63,7 +63,7 @@ namespace SuperXml
         /// <returns></returns>
         public string CompileString(string input)
         {
-            var template = "<doc>"+input+"</doc>";
+            var template = "<Tor.string>"+input+"</Tor.string>";
             using (var reader = XmlReader.Create(new StringReader(template)))
             {
                 var output = new StringBuilder();
@@ -73,7 +73,7 @@ namespace SuperXml
                     var compiled = _compileXml(reader);
                     compiled.Run(writer);
                 }
-                return output.ToString();
+                return output.ToString().Replace("<Tor.string>", "").Replace("</Tor.string>", "");
             }
         }
 
@@ -410,8 +410,7 @@ namespace SuperXml
                                 else writer.WriteStartElement(Name);
 
                             foreach (var attribute in Attributes.Where(attribute => attribute.Name != RepeaterKey
-                                                                                    && attribute.Name != IfKey
-                                                                                    ))
+                                                                                    && attribute.Name != IfKey))
                             {
                                 writer.WriteAttributeString(attribute.Name, Inject(attribute.Value));
                             }

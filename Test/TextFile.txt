@@ -1,0 +1,9 @@
+﻿Hello {{name}}, you are a document with a size of {{width}}x{{height}} and an area of {{width*height}}
+
+now here is a list with your bounds:
+  <Tor.Run Tor.Repeat="b in bounds">-value {{$index}}: {{b}}
+  </Tor.Run>
+
+now here you can see a filtered list of clases
+  <Tor.Run Tor.Repeat="e in elements" Tor.If="e.age > 25">-{{e.name}}, age {{e.age}}
+  </Tor.Run>

@@ -94,13 +94,17 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SuperXML\SuperXML.csproj">
+    <ProjectReference Include="..\SuperXML\Templator.csproj">
       <Project>{70c20bf5-b4bf-49f6-8485-57cea42b9ffe}</Project>
-      <Name>SuperXML</Name>
+      <Name>Templator</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="testFile.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="TextFile.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
