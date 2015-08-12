@@ -1,18 +1,16 @@
-# SuperXml
+# Templator (Tor)
 
-SuperXml is a light weight and fast library to use angular-like markup in xml files.
-Useful to create Xml templates.
+SuperXml is a light weight and fast library to build string, Xml and Html Templates.
 It uses a fast Compiler class that evaluates your initial markup and returns a new xml file.
-the compiler uses [NCalc](https://www.nuget.org/packages/ncalc/).
+Its is a native alternative for http://www.stringtemplate.org/, with a intuitive markup.
 
-#NuGet
+#Install From Nuget 
 https://www.nuget.org/packages/SuperXML/
 ```
 Install-Package SuperXML 
 ```
 #Example
-
-c#
+The first step to compile a tmeplate is to set up a compiler class. You can add elements to your compiler Scope so they can be evaluated when compiled. You can add as many elements as you need they can be of any type. when you add an element that already exists in the scope it will override the last value.
 ```
 var compiler = new Compiler()
                 .AddElementToScope("name", "Excel")
@@ -27,17 +25,62 @@ var compiler = new Compiler()
                     new { name = "Edit", age= 82 },
                     new { name = "Susan", age= 37 }
                 });
-                //you can add enums, classes, integers, arrays, arrays of classes with nested clases...
-                //it does not matter! just add them.
-                //if the path exist it will compile correctly (myclass.myproperty.myfield)
-
-//Compile from a Xml File
-string compiled = compiler.Compile(@"C:\...\myXml.xml");
-
-//Or from a string
-string compiled = compiler.Compile(new StringReader("<doc><.../></doc>"));
 ```
+After Scope is ready all you need to do is call the compile method according to your needs
+```
+compiler.Compile("Hello {{name}}") // a string
+compiler.CompileXml(@"c:/.../file.xml"); //a xml file
+compiler.CompileXml(new StringReader("<doc><.../></doc>"));//a xml string
+```
+#String Example
+Template:
+```
+Hello {{name}}, you are a document with a size of {{width}}x{{height}} and an area of {{width*height}}
 
+now here is a list with your bounds:
+  <Tor.Run Tor.Repeat="b in bounds">-value {{$index}}: {{b}}
+  </Tor.Run>
+
+now here you can see a filtered list of clases
+  <Tor.Run Tor.Repeat="e in elements" Tor.If="e.age > 25">-{{e.name}}, age {{e.age}}
+  </Tor.Run>
+```
+Result:
+```
+Hello Excel, you are a document with a size of 100x500 and an area of 50000
+
+now here is a list with your bounds:
+  -value 0: 10
+  -value 1: 0
+  -value 2: 10
+  -value 3: 0
+  
+
+now here you can see a filtered list of clases
+  -Maria, age 57
+  -Edit, age 82
+  -Susan, age 37
+```
+this is how it looks in C#
+```
+var template = "...a string containing the template of above..."
+var compiled = new Compiler()
+                .AddElementToScope("name", "Excel")
+                .AddElementToScope("width", 100)
+                .AddElementToScope("height", 500)
+                .AddElementToScope("bounds", new[] {10, 0, 10, 0})
+                .AddElementToScope("elements", new []
+                {
+                    new { name = "John", age= 10 },
+                    new { name = "Maria", age= 57 },
+                    new { name = "Mark", age= 23 },
+                    new { name = "Edit", age= 82 },
+                    new { name = "Susan", age= 37 }
+                })
+                .CompileString(template);
+  //compiled now contains the string of the result above
+```
+#XLM File Example
 Input XML
 ```
 <document>
@@ -51,12 +94,11 @@ Input XML
   <content>
     <element ForEach="element in elements" If="element.age > 25">
       <name>{{element.name}}</name>
-      <name>{{element.age}}</name>
+      <age>{{element.age}}</age>
     </element>
   </content> 
 </document>
 ```
-
 Compiled
 ```
 <document>
@@ -73,19 +115,20 @@ Compiled
   <content>
     <element>
       <name>Maria</name>
-      <name>57</name>
+      <age>57</age>
     </element>
     <element>
       <name>Edit</name>
-      <name>82</name>
+      <age>82</age>
     </element>
     <element>
       <name>Susan</name>
-      <name>37</name>
+      <age>37</age>
     </element>
   </content>
 </document>
 ```
+dont forget to use `compiler.CompileXml(@"C:\...\myXml.xml");` if source is a file or `compiler.CompileXml(new StringReader("<doc><.../></doc>"));` if source is a string.
 #Math and Logical Operatos
 math operations are evaluated by Ncalc, basically it works with the same syntax used in C#. for more info go to https://ncalc.codeplex.com/
 ```
@@ -133,20 +176,20 @@ Compiled
   </Text>
 </Document>
 ```
-#If Command
+#Tor.If Command
 Evaluates if an XmlNode should be included according to condition. condition can include everything supported by ncalc (most of common things). examples:
-* `<MyElement If="10 > 6"/>` numeric.
-* `<MyElement If="aValueFromScope == 'visible'"/>` string and from scope
-* `<MyElement If="10 > h && aValueFromScope == 'visible'"/>` another example
+* `<MyElement Tor.If="10 > 6"/>` numeric.
+* `<MyElement Tor.If="aValueFromScope == 'visible'"/>` string and from scope
+* `<MyElement Tor.If="10 > h && aValueFromScope == 'visible'"/>` another example
 
-#ForEach Command
-Repeats an Xmlnode the same number of times as elements in the array. Example
-* `<MyElement ForEach="number in numbers" />` where numbers is an array in the scope.
+#Tor.Repat Command
+Repeats the element the same number of times as items in the array. Example
+* `<MyElement Tor.Repeat="number in numbers" myAttribute="{{number}}" />` where numbers is an array in the scope.
 
 Each repeated element has an cero based index that indicates its position in the repeater you can access it using `$index`
 ```
 //Input
-<element ForEach="element in elements">{{$index}}</element>
+<element Tor.Repeat="element in elements">{{$index}}</element>
 //Output
 <element>0</element>
 <element>1</element>
@@ -154,23 +197,29 @@ Each repeated element has an cero based index that indicates its position in the
 ...
 <element>n</element>
 ```
-#TemplateBlock Command
-this command is usefull when you need to group elements into a command, this tag is erased when compiled. Example:
+#Tor.Run Command
+this command is usefull to create lists of strings or when you need to group elements into a command, this tag is erased when compiled. Example:
 ```
 <Document>
-  <TemplateBlock ForEach="number in [1,2,3]">
+  <Tor.Run Tor.Repeat="number in numbers">
     <text1></text1>
     <text2></text2>
     ...
     <text3></text3>
-  </TemplateBlock>
-  <TemplateBlock If="8 > 7">
+  </Tor.Run>
+  <Tor.Run Tor.If="8 > 7">
     <text1></text1>
     <text2></text2>
     ...
     <text3></text3>
-  </TemplateBlock>
+  </Tor.Run>
 </Document>
+```
+or create lists
+```
+<Tor.Run Tor.Repeat="e in elements" Tor.If="e.age > 25">
+  * {{e.name}}, age {{e.age}}
+</Tor.Run>
 ```
 #Supported Types:
 When you use `.AddElementToScope(Key, Value)`, Value is dynamic, that means that it will be evaluated at runtime, so 
@@ -178,12 +227,13 @@ it should support all kind of types, enums, classes, all elements and commands c
 #Performance
 from `<element ForEach="element in elements">{{element}}</element>` and elements equals to an array of 10,000 integers Core i5 @ 2.3 GHz took an average of 300 ms to compile in release.
 
-Compile only what you need
+Sometime Xml files contains elements that you dont need to compile. to improve performance compile only what you need.
 ```
-var onlyContet = compiler.Compile(new StringReader(SourceBox.Text), 
+var onlyContet = compiler.CompileXml(new StringReader(SourceBox.Text), 
                  x => x.Children.First(y => y.Name == "content")); 
 ```
 
 
 #Debug
 when a property is not found in the Compiler Scope, Compiler will let you know wich name could not be found. it uses Trace.WriteLine(), so in visual studio you will find it in the output window.
+Warning when a property is not found the impact in performance is huge!.
