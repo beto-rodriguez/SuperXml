@@ -1,8 +1,6 @@
 # Templator (Tor)
 
-Templator is a light weight and fast library to build string, Xml and Html Templates.
-It uses a fast Compiler class that evaluates your initial markup and returns a new xml file.
-Its is a native alternative for http://www.stringtemplate.org/, with a intuitive markup.
+Templator (Tor) is just a light weight and easy to use templating engine library, useful to create string, xml and Html Templates. Its is a native alternative for http://www.stringtemplate.org/, with a intuitive markup.
 
 #Install From Nuget 
 https://www.nuget.org/packages/SuperXML/
