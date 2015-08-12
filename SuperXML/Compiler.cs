@@ -15,9 +15,9 @@ namespace SuperXml
         public Compiler()
         {
             Scope = new Dictionary<string, dynamic>();
-            RepeaterKey = "ForEach";
-            IfKey = "If";
-            TemplateKey = "TemplateBlock";
+            RepeaterKey = "Tor.Repeat";
+            IfKey = "Tor.If";
+            TemplateKey = "Tor.B";
             _isExpressionRegex = new Regex("(?<={{).*?(?=}})");
             _forEachRegex =
                 new Regex(@"^\s*([a-zA-Z_]+[\w]*)\s+in\s+(([a-zA-Z][\w]*(\.[a-zA-Z][\w]*)*)|\[(.+)(,\s*.+)*\])\s*$",
@@ -57,7 +57,28 @@ namespace SuperXml
         }
 
         /// <summary>
-        /// Compiles with specified URI.
+        /// Compiles a string template
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public string CompileString(string input)
+        {
+            var template = "<doc>"+input+"</doc>";
+            using (var reader = XmlReader.Create(new StringReader(template)))
+            {
+                var output = new StringBuilder();
+                var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
+                using (var writer = XmlWriter.Create(output, ws))
+                {
+                    var compiled = _compileXml(reader);
+                    compiled.Run(writer);
+                }
+                return output.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Compiles a Xml template with specified URI.
         /// </summary>
         /// <param name="uri"></param>
         /// <param name="root">
@@ -65,7 +86,7 @@ namespace SuperXml
         ///     example: x => x.Children.First(y => x.Name == "MyElement")
         /// </param>
         /// <returns></returns>
-        public string Compile(string uri, Func<XmlElement, XmlElement> root = null)
+        public string CompileXml(string uri, Func<XmlElement, XmlElement> root = null)
         {
             using (var reader = XmlReader.Create(uri))
             {
@@ -73,7 +94,7 @@ namespace SuperXml
                 var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
                 using (var writer = XmlWriter.Create(output, ws))
                 {
-                    var compiled = _compile(reader);
+                    var compiled = _compileXml(reader);
                     if (root != null)
                     {
                         compiled = root(compiled);
@@ -85,7 +106,7 @@ namespace SuperXml
         }
 
         /// <summary>
-        /// Compiles using the specified stream with default settings. 
+        /// Compiles a Xml template using the specified stream with default settings. 
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="root">
@@ -93,7 +114,7 @@ namespace SuperXml
         ///     example: x => x.Children.First(y => x.Name == "MyElement")
         /// </param>
         /// <returns></returns>
-        public string Compile(Stream stream, Func<XmlElement, XmlElement> root = null)
+        public string CompileXml(Stream stream, Func<XmlElement, XmlElement> root = null)
         {
             using (var reader = XmlReader.Create(stream))
             {
@@ -101,7 +122,7 @@ namespace SuperXml
                 var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
                 using (var writer = XmlWriter.Create(output, ws))
                 {
-                    var compiled = _compile(reader);
+                    var compiled = _compileXml(reader);
                     if (root != null)
                     {
                         compiled = root(compiled);
@@ -113,7 +134,7 @@ namespace SuperXml
         }
 
         /// <summary>
-        /// Compiles by using the specified text reader. 
+        /// Compiles a Xml template by using the specified text reader. 
         /// </summary>
         /// <param name="textReader"></param>
         /// <param name="root">
@@ -121,7 +142,7 @@ namespace SuperXml
         ///     example: x => x.Children.First(y => x.Name == "MyElement")
         /// </param>
         /// <returns></returns>
-        public string Compile(TextReader textReader, Func<XmlElement, XmlElement> root = null)
+        public string CompileXml(TextReader textReader, Func<XmlElement, XmlElement> root = null)
         {
             using (var reader = XmlReader.Create(textReader))
             {
@@ -129,7 +150,7 @@ namespace SuperXml
                 var ws = XmlWriterSettings ?? new XmlWriterSettings {Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true};
                 using (var writer = XmlWriter.Create(output, ws))
                 {
-                    var compiled = _compile(reader);
+                    var compiled = _compileXml(reader);
                     if (root != null)
                     {
                         compiled = root(compiled);
@@ -141,7 +162,7 @@ namespace SuperXml
         }
 
         /// <summary>
-        /// Compiles with a specified XmlReader
+        /// Compiles a Xml template with a specified XmlReader
         /// </summary>
         /// <param name="xmlReader"></param>
         /// <param name="root">
@@ -149,13 +170,13 @@ namespace SuperXml
         ///     example: x => x.Children.First(y => x.Name == "MyElement")
         /// </param>
         /// <returns></returns>
-        public string Compile(XmlReader xmlReader, Func<XmlElement, XmlElement> root = null)
+        public string CompileXml(XmlReader xmlReader, Func<XmlElement, XmlElement> root = null)
         {
             var output = new StringBuilder();
             var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
             using (var writer = XmlWriter.Create(output, ws))
             {
-                var compiled = _compile(xmlReader);
+                var compiled = _compileXml(xmlReader);
                 if (root != null)
                 {
                     compiled = root(compiled);
@@ -165,7 +186,7 @@ namespace SuperXml
             return output.ToString();
         }
 
-        private XmlElement _compile(XmlReader reader)
+        private XmlElement _compileXml(XmlReader reader)
         {
             var element = new XmlElement(BufferCommands.NewDocument) {Scope = Scope};
             while (reader.Read())
