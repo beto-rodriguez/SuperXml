@@ -6,6 +6,7 @@ Why another template engine?
   * Multitype support
   * Math evaluators
   * AngularJS-like markup, angular js from google has a lot of support and if you are familiar with it your are familiar with this libary
+  * Support for nested elements. you can nest all commands you need.
 
 #Install
 From visual studio go to `Tools` -> `Nuget Package Manager` -> `Package Manager Console`
@@ -15,7 +16,7 @@ Install-Package Tor
 ```
 once it is installed you can use the `Compiler` class
 #Example
-The first step to compile a tmeplate is to set up a compiler class. You can add elements to your compiler Scope so they can be evaluated when compiled. You can add as many elements as you need they can be of any type. when you add an element that already exists in the scope it will override the last value.
+The first step to compile a template is to set up a compiler class. You can add elements to your compiler Scope so they can be evaluated when compiled. You can add as many elements as you need they can be of any type. when you add an element that already exists in the scope it will override the last value.
 ```
 var compiler = new Compiler()
                 .AddElementToScope("name", "Excel")
@@ -136,6 +137,52 @@ Compiled
 dont forget to use `compiler.CompileXml(@"C:\...\myXml.xml");` if source is a file or `compiler.CompileXml(new StringReader("<doc><.../></doc>"));` if source is a string.
 #HTML
 Coming Soon...
+#Tor.If Command
+Evaluates if the element should be included according to condition. condition can include everything supported by ncalc (most of common things). examples:
+* `<MyElement Tor.If="10 > 6"/>` numeric.
+* `<MyElement Tor.If="aValueFromScope == 'visible'"/>` string and from scope
+* `<MyElement Tor.If="10 > h && aValueFromScope == 'visible'"/>` another example
+
+#Tor.Repat Command
+Repeats the element the same number of times as items in the array. Example
+* `<MyElement Tor.Repeat="number in numbers" myAttribute="{{number}}" />` where numbers is an array in the scope.
+
+Each repeated element has an cero based index that indicates its position in the repeater you can access it using `$index`
+```
+//Input
+<element Tor.Repeat="element in elements">{{$index}}</element>
+//Output
+<element>0</element>
+<element>1</element>
+<element>2</element>
+...
+<element>n</element>
+```
+#Tor.Run Command
+Tor.Run is usefull to run Tor.If and Tor.Repeat on a bunch of elements or just on strings.
+Elements:
+```
+<Document>
+  <Tor.Run Tor.Repeat="number in numbers">
+    <text1></text1>
+    <text2></text2>
+    ...
+    <text3></text3>
+  </Tor.Run>
+  <Tor.Run Tor.If="8 > 7">
+    <text1></text1>
+    <text2></text2>
+    ...
+    <text3></text3>
+  </Tor.Run>
+</Document>
+```
+Strings (here an exmaple to make a list):
+```
+<Tor.Run Tor.Repeat="e in elements" Tor.If="e.age > 25">
+  * {{e.name}}, age {{e.age}}
+</Tor.Run>
+```
 #Math and Logical Operatos
 math operations are evaluated by Ncalc, basically it works with the same syntax used in C#. for more info go to https://ncalc.codeplex.com/
 ```
@@ -182,51 +229,6 @@ Compiled
     Roger Martinez, age: 20
   </Text>
 </Document>
-```
-#Tor.If Command
-Evaluates if an XmlNode should be included according to condition. condition can include everything supported by ncalc (most of common things). examples:
-* `<MyElement Tor.If="10 > 6"/>` numeric.
-* `<MyElement Tor.If="aValueFromScope == 'visible'"/>` string and from scope
-* `<MyElement Tor.If="10 > h && aValueFromScope == 'visible'"/>` another example
-
-#Tor.Repat Command
-Repeats the element the same number of times as items in the array. Example
-* `<MyElement Tor.Repeat="number in numbers" myAttribute="{{number}}" />` where numbers is an array in the scope.
-
-Each repeated element has an cero based index that indicates its position in the repeater you can access it using `$index`
-```
-//Input
-<element Tor.Repeat="element in elements">{{$index}}</element>
-//Output
-<element>0</element>
-<element>1</element>
-<element>2</element>
-...
-<element>n</element>
-```
-#Tor.Run Command
-this command is usefull to create lists of strings or when you need to group elements into a command, this tag is erased when compiled. Example:
-```
-<Document>
-  <Tor.Run Tor.Repeat="number in numbers">
-    <text1></text1>
-    <text2></text2>
-    ...
-    <text3></text3>
-  </Tor.Run>
-  <Tor.Run Tor.If="8 > 7">
-    <text1></text1>
-    <text2></text2>
-    ...
-    <text3></text3>
-  </Tor.Run>
-</Document>
-```
-or create lists
-```
-<Tor.Run Tor.Repeat="e in elements" Tor.If="e.age > 25">
-  * {{e.name}}, age {{e.age}}
-</Tor.Run>
 ```
 #Supported Types:
 When you use `.AddElementToScope(Key, Value)`, Value is dynamic, that means that it will be evaluated at runtime, so 
