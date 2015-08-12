@@ -41,7 +41,8 @@ compiler.CompileXml(new StringReader("<doc><.../></doc>"));//a xml string
 #String Example
 Template:
 ```
-Hello {{name}}, you are a document with a size of {{width}}x{{height}} and an area of {{width*height}}
+Hello {{name}}, you are a document with a size of {{width}}x{{height}} and an 
+area of {{width*height}}
 
 now here is a list with your bounds:
   <Tor.Run Tor.Repeat="b in bounds">-value {{$index}}: {{b}}
