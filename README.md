@@ -3,9 +3,9 @@
 Templator (Tor) is just a light weight and easy to use templating engine library, useful to create string, xml and Html Templates. Its is a native alternative for http://www.stringtemplate.org/, with a intuitive markup.
 
 #Install From Nuget 
-https://www.nuget.org/packages/SuperXML/
+https://www.nuget.org/packages/Tor/
 ```
-Install-Package SuperXML 
+Install-Package Tor
 ```
 #Example
 The first step to compile a tmeplate is to set up a compiler class. You can add elements to your compiler Scope so they can be evaluated when compiled. You can add as many elements as you need they can be of any type. when you add an element that already exists in the scope it will override the last value.
