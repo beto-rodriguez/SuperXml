@@ -232,6 +232,9 @@ namespace SuperXml
             /// </summary>
             public string Value { get; set; }
             /// <summary>
+            /// Sets Name space to xml Element
+            /// </summary>
+            /// <summary>
             /// Attributes in the Element
             /// </summary>
             public List<XmlAttribute> Attributes { get;}
@@ -380,8 +383,14 @@ namespace SuperXml
                             Scope = scope ?? Scope;
                             if (!If()) continue;
                             var isTemplate = Name == TemplateKey;
-                            if (!isTemplate) writer.WriteStartElement(Name);
-                            foreach (var attribute in Attributes.Where(attribute => attribute.Name != RepeaterKey && attribute.Name != IfKey))
+                            var ns = Attributes.FirstOrDefault(x => x.Name == "xmlns");
+                            if (!isTemplate)
+                                if (ns != null) writer.WriteStartElement(Name, ns.Value);
+                                else writer.WriteStartElement(Name);
+
+                            foreach (var attribute in Attributes.Where(attribute => attribute.Name != RepeaterKey
+                                                                                    && attribute.Name != IfKey
+                                                                                    ))
                             {
                                 writer.WriteAttributeString(attribute.Name, Inject(attribute.Value));
                             }

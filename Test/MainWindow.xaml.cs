@@ -34,12 +34,12 @@ namespace Test
 
 
             var startedTime = DateTime.Now;
-            //var compiled = compiler.Compile(new StringReader(SourceBox.Text));
-            var onlyContet = compiler.Compile(new StringReader(SourceBox.Text),
-                x => x.Children.First(y => y.Name == "content"));
+            var compiled = compiler.Compile(new StringReader(SourceBox.Text));
+            //var onlyContet = compiler.Compile(new StringReader(SourceBox.Text),
+            //    x => x.Children.First(y => y.Name == "content"));
             ResultBlock.Text = "Compilation total time " + (DateTime.Now - startedTime).TotalMilliseconds + "ms";
 
-            CompiledBox.Text = onlyContet;
+            CompiledBox.Text = compiled;
         }
 
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
