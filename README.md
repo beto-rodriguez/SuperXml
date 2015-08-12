@@ -143,6 +143,17 @@ Evaluates if an XmlNode should be included according to condition. condition can
 Repeats an Xmlnode the same number of times as elements in the array. Example
 * `<MyElement ForEach="number in numbers" />` where numbers is an array in the scope.
 
+Each repeated element has an cero based index that indicates its position in the repeater you can access it using `$index`
+```
+//Input
+<element ForEach="element in elements">{{$index}}</element>
+//Output
+<element>0</element>
+<element>1</element>
+<element>2</element>
+...
+<element>n</element>
+```
 #TemplateBlock Command
 this command is usefull when you need to group elements into a command, this tag is erased when compiled. Example:
 ```
