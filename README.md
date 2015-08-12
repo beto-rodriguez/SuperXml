@@ -2,13 +2,18 @@
 
 Templator (Tor) is just a light weight and easy to use templating engine library, useful to create string, xml and Html Templates.
 
-lets see what I can do for you and others can't
+Why another template engine?
+  * Multitype support
+  * Math evaluators
+  * AngularJS-like markup, angular js from google has a lot of support and if you are familiar with it your are familiar with this libary
 
-#Install From Nuget 
-https://www.nuget.org/packages/Tor/
+#Install
+From visual studio go to `Tools` -> `Nuget Package Manager` -> `Package Manager Console`
+then in the `Package Manager console` write the next command.
 ```
 Install-Package Tor
 ```
+once it is installed you can use the `Compiler` class
 #Example
 The first step to compile a tmeplate is to set up a compiler class. You can add elements to your compiler Scope so they can be evaluated when compiled. You can add as many elements as you need they can be of any type. when you add an element that already exists in the scope it will override the last value.
 ```
