@@ -14,7 +14,7 @@ then in the `Package Manager console` write the next command.
 ```
 Install-Package Tor
 ```
-once it is installed you can use the `Compiler` class
+once it is installed you can use the `Compiler` class, you can find it at namespace `Templator`.
 #Example
 The first step to compile a template is to set up a compiler class. You can add elements to your compiler Scope so they can be evaluated when compiled. You can add as many elements as you need they can be of any type. when you add an element that already exists in the scope it will override the last value.
 ```
