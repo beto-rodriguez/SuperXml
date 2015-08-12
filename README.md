@@ -1,6 +1,6 @@
 # Templator (Tor)
 
-SuperXml is a light weight and fast library to build string, Xml and Html Templates.
+Templator is a light weight and fast library to build string, Xml and Html Templates.
 It uses a fast Compiler class that evaluates your initial markup and returns a new xml file.
 Its is a native alternative for http://www.stringtemplate.org/, with a intuitive markup.
 
@@ -129,6 +129,8 @@ Compiled
 </document>
 ```
 dont forget to use `compiler.CompileXml(@"C:\...\myXml.xml");` if source is a file or `compiler.CompileXml(new StringReader("<doc><.../></doc>"));` if source is a string.
+#HTML
+Coming Soon...
 #Math and Logical Operatos
 math operations are evaluated by Ncalc, basically it works with the same syntax used in C#. for more info go to https://ncalc.codeplex.com/
 ```
