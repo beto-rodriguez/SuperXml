@@ -22,7 +22,6 @@ namespace Templator
             _forEachRegex =
                 new Regex(@"^\s*([a-zA-Z_]+[\w]*)\s+in\s+(([a-zA-Z][\w]*(\.[a-zA-Z][\w]*)*)|\[(.+)(,\s*.+)*\])\s*$",
                 RegexOptions.Singleline);
-            _varNameRegex = new Regex(@"[\s|&=!<>+\-*/%^(]([A-Za-z_$]\w*(\.[A-Za-z_][\w()]*)*)");
         }
 
         public static string RepeaterKey { get; set; }
@@ -31,7 +30,20 @@ namespace Templator
 
         private static Regex _isExpressionRegex;
         private static Regex _forEachRegex;
-        private static Regex _varNameRegex;
+        private static readonly char[] ValidStartName =
+        {
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            '_', '$'
+        };
+        private static readonly char[] ValidContentName =
+        {
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            '_', '$', '1','2','3','4','5','6','7','8','9','0', '.'
+        };
+
+        private static string[] _keyWords = {"if"};
 
         public XmlWriterSettings XmlWriterSettings { get; set; }
 
@@ -335,10 +347,13 @@ namespace Templator
 
                 foreach (var item in items)
                 {
+                    var even = i%2 == 0;
                     yield return new Dictionary<string, dynamic>
                     {
                         [repeater] = item,
-                        ["$index"] = i++
+                        ["$index"] = i++,
+                        ["$odd"] = !even,
+                        ["$even"] = even
                     };
                 }
             }
@@ -370,12 +385,11 @@ namespace Templator
                 var p = 0;
                 var parameters = new Dictionary<string, object>();
 
-                foreach (Match match in _varNameRegex.Matches(" " + expression))
+                foreach (var varName in GetVarNames(expression))
                 {
-                    var g = match.Groups[1].Value;
-                    dynamic varValue = GetValueFromScope(g);
-                    expression = expression.Replace(g, "[p" + p + "]");
-                    parameters.Add("p" + p, varValue);
+                    dynamic value = GetValueFromScope(varName);
+                    expression = expression.Replace(varName, "[p" + p + "]");
+                    parameters.Add("p" + p , value);
                     p++;
                 }
 
@@ -393,7 +407,40 @@ namespace Templator
                     return originalExpression;
                 }
             }
-            
+
+            private IEnumerable<string> GetVarNames(string expression)
+            {
+                if (string.IsNullOrWhiteSpace(expression)) { yield return ""; yield break;}
+                expression += " "; 
+                var isString = false;
+                var isReading = false;
+                var read = "";
+                foreach (var c in expression)
+                {
+                    if (isReading && !isString)
+                    {
+                        if (ValidContentName.Contains(c))
+                        {
+                            read += c.ToString();
+                        }
+                        else
+                        {
+                            isReading = false;
+                            if (!_keyWords.Contains(read)) yield return read;
+                        }
+                    }
+                    else
+                    {
+                        if (ValidStartName.Contains(c) && !isString)
+                        {
+                            isReading = true;
+                            read = c.ToString();
+                        }
+                        if (c == '\'') isString = !isString;
+                    }
+                }
+            }
+
             public void Run(XmlWriter writer)
             {
                 switch (Type)

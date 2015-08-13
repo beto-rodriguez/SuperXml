@@ -1,4 +1,6 @@
 ﻿using System;
+using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using Templator;
@@ -15,8 +17,20 @@ namespace Test
             InitializeComponent();
         }
 
+        private int[] _generateInts(int times)
+        {
+            var l = new List<int>();
+            for (var i = 0; i < times; i++)
+            {
+                l.Add(i);
+            }
+            return l.ToArray();
+        }
+
         private void CompileClick(object sender, RoutedEventArgs e)
         {
+
+
             var compiler = new Compiler()
                 .AddElementToScope("name", "Excel")
                 .AddElementToScope("width", 100)
@@ -29,7 +43,8 @@ namespace Test
                     new { name = "Mark", age= 23 },
                     new { name = "Edit", age= 82 },
                     new { name = "Susan", age= 37 }
-                }).AddElementToScope("aNullValue", null);
+                }).AddElementToScope("aNullValue", null)
+                .AddElementToScope("numbers", _generateInts(10));
 
 
             var startedTime = DateTime.Now;
