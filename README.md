@@ -196,6 +196,7 @@ math operations are evaluated by Ncalc, basically it works with the same syntax 
     2 > 5 {{2>5}}, 4 = 9 {{ 4 == 9 }},
     for strings use '', for example (hola = hello {{'hello' == 'hello'}})
   </Logical>
+  <condition>{{ if(1 == 0, 'yes it is!', 'nope') }}</condition>
 </Document>
 ```
 Compiled
@@ -210,6 +211,7 @@ Compiled
     2 > 5 False, 4 = 9 False,
     for strings use '', for example (hello = hello True)
   </Logical>
+  <condition>nope</condition>
 </Document>
 </Document>
 ```
