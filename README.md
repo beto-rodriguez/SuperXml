@@ -148,14 +148,14 @@ Evaluates if the element should be included according to condition. condition ca
 Repeats the element the same number of times as items in the array. Example
 * `<MyElement Tor.Repeat="number in numbers" myAttribute="{{number}}" />` where numbers is an array in the scope.
 
-Each repeated element has an cero based index that indicates its position in the repeater you can access it using `$index`
+Each repeated element has an cero based index that indicates its position in the repeater you can access it using `$index`, it has 2 boolean values indicating if the repeated item is even or odd, access them with `$even` or `$odd`
 ```
 //Input
-<element Tor.Repeat="element in elements">{{$index}}</element>
+<element Tor.Repeat="element in elements">{{$index}}, is it even? {{ if ($even, 'yes!', 'no') }}</element>
 //Output
-<element>0</element>
-<element>1</element>
-<element>2</element>
+<element>0, is it even? yes!</element>
+<element>1, is it even? no</element>
+<element>2, is it even? yes!</element>
 ...
 <element>n</element>
 ```
