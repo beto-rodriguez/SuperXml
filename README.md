@@ -96,7 +96,7 @@ Input XML
   <height>{{height}}</height>
   <area>{{width*height}}</area>
   <padding>
-    <bound ForEach="bound in bounds">{{bound}}</bound>
+    <bound Tor.Repeat="bound in bounds">{{bound}}</bound>
   </padding>
   <content>
     <element ForEach="element in elements" If="element.age > 25">
