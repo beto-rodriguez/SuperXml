@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web.UI;
 using System.Xml;
+using HtmlAgilityPack;
 using NCalc;
 
 namespace Templator
@@ -23,6 +26,7 @@ namespace Templator
                 new Regex(@"^\s*([a-zA-Z_]+[\w]*)\s+in\s+(([a-zA-Z][\w]*(\.[a-zA-Z][\w]*)*)|\[(.+)(,\s*.+)*\])\s*$",
                 RegexOptions.Singleline);
             _varNameRegex = new Regex(@"[\s|&=!<>+\-*/%^(]([A-Za-z_$]\w*(\.[A-Za-z_][\w()]*)*)");
+            _keyWords = new Dictionary<string, dynamic> {["null"] = null};
         }
 
         public static string RepeaterKey { get; set; }
@@ -32,6 +36,8 @@ namespace Templator
         private static Regex _isExpressionRegex;
         private static Regex _forEachRegex;
         private static Regex _varNameRegex;
+
+        private static Dictionary<string, dynamic> _keyWords; 
 
         public XmlWriterSettings XmlWriterSettings { get; set; }
 
@@ -70,7 +76,7 @@ namespace Templator
                 var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
                 using (var writer = XmlWriter.Create(output, ws))
                 {
-                    var compiled = _compileXml(reader);
+                    var compiled = _readXml(reader);
                     compiled.Run(writer);
                 }
                 return output.ToString().Replace("<Tor.string>", "").Replace("</Tor.string>", "");
@@ -94,7 +100,7 @@ namespace Templator
                 var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
                 using (var writer = XmlWriter.Create(output, ws))
                 {
-                    var compiled = _compileXml(reader);
+                    var compiled = _readXml(reader);
                     if (root != null)
                     {
                         compiled = root(compiled);
@@ -122,7 +128,7 @@ namespace Templator
                 var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
                 using (var writer = XmlWriter.Create(output, ws))
                 {
-                    var compiled = _compileXml(reader);
+                    var compiled = _readXml(reader);
                     if (root != null)
                     {
                         compiled = root(compiled);
@@ -150,7 +156,7 @@ namespace Templator
                 var ws = XmlWriterSettings ?? new XmlWriterSettings {Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true};
                 using (var writer = XmlWriter.Create(output, ws))
                 {
-                    var compiled = _compileXml(reader);
+                    var compiled = _readXml(reader);
                     if (root != null)
                     {
                         compiled = root(compiled);
@@ -176,7 +182,7 @@ namespace Templator
             var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
             using (var writer = XmlWriter.Create(output, ws))
             {
-                var compiled = _compileXml(xmlReader);
+                var compiled = _readXml(xmlReader);
                 if (root != null)
                 {
                     compiled = root(compiled);
@@ -186,7 +192,7 @@ namespace Templator
             return output.ToString();
         }
 
-        private XmlElement _compileXml(XmlReader reader)
+        private XmlElement _readXml(XmlReader reader)
         {
             var element = new XmlElement(BufferCommands.NewDocument) {Scope = Scope};
             while (reader.Read())
@@ -231,7 +237,7 @@ namespace Templator
             var root = element.Children.First();
             return root;
         }
-        
+
         public class XmlElement
         {
             private XmlElement _parent;
@@ -280,6 +286,9 @@ namespace Templator
             {
                 try
                 {
+                    if (_keyWords.Any(x => x.Key == propertyName))
+                        return _keyWords.First(x => x.Key == propertyName).Value;
+
                     var keys = propertyName.Split('.');
                     var root = keys[0];
 

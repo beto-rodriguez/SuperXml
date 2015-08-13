@@ -29,7 +29,7 @@ namespace Test
                     new { name = "Mark", age= 23 },
                     new { name = "Edit", age= 82 },
                     new { name = "Susan", age= 37 }
-                });
+                }).AddElementToScope("aNullValue", null);
 
 
             var startedTime = DateTime.Now;
