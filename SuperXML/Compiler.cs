@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Web.UI;
 using System.Xml;
 using NCalc;
 
@@ -25,7 +23,6 @@ namespace Templator
                 new Regex(@"^\s*([a-zA-Z_]+[\w]*)\s+in\s+(([a-zA-Z][\w]*(\.[a-zA-Z][\w]*)*)|\[(.+)(,\s*.+)*\])\s*$",
                 RegexOptions.Singleline);
             _varNameRegex = new Regex(@"[\s|&=!<>+\-*/%^(]([A-Za-z_$]\w*(\.[A-Za-z_][\w()]*)*)");
-            _keyWords = new Dictionary<string, dynamic> {["true"] = true, ["false"] = false};
         }
 
         public static string RepeaterKey { get; set; }
@@ -35,8 +32,6 @@ namespace Templator
         private static Regex _isExpressionRegex;
         private static Regex _forEachRegex;
         private static Regex _varNameRegex;
-
-        private static Dictionary<string, dynamic> _keyWords; 
 
         public XmlWriterSettings XmlWriterSettings { get; set; }
 
@@ -285,9 +280,6 @@ namespace Templator
             {
                 try
                 {
-                    if (_keyWords.Any(x => x.Key == propertyName))
-                        return _keyWords.First(x => x.Key == propertyName).Value;
-
                     var keys = propertyName.Split('.');
                     var root = keys[0];
 
