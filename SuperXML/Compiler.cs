@@ -8,7 +8,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.UI;
 using System.Xml;
-using HtmlAgilityPack;
 using NCalc;
 
 namespace Templator
@@ -26,7 +25,7 @@ namespace Templator
                 new Regex(@"^\s*([a-zA-Z_]+[\w]*)\s+in\s+(([a-zA-Z][\w]*(\.[a-zA-Z][\w]*)*)|\[(.+)(,\s*.+)*\])\s*$",
                 RegexOptions.Singleline);
             _varNameRegex = new Regex(@"[\s|&=!<>+\-*/%^(]([A-Za-z_$]\w*(\.[A-Za-z_][\w()]*)*)");
-            _keyWords = new Dictionary<string, dynamic> {["null"] = null};
+            _keyWords = new Dictionary<string, dynamic> {["true"] = true, ["false"] = false};
         }
 
         public static string RepeaterKey { get; set; }
