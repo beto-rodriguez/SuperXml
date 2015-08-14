@@ -148,7 +148,7 @@ Evaluates if the element should be included according to a condition. condition 
  
 in that case you should use NCalc `if` function example: 
 
-`<Element type="if(10 == 5, '10 is equals to 5', '10 is diferent to 5')"></Element>`
+`<Element type="{{if(10 == 5, '10 is equals to 5', '10 is diferent to 5')}}"></Element>`
 
 #Tor.Repat Command
 Repeats the element the same number of times as items in the array. Example
