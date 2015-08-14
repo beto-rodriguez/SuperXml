@@ -44,7 +44,7 @@ namespace Test
                     new { name = "Edit", age= 82 },
                     new { name = "Susan", age= 37 }
                 }).AddElementToScope("aNullValue", null)
-                .AddElementToScope("numbers", _generateInts(10));
+                .AddElementToScope("numbers", _generateInts(10000));
 
 
             var startedTime = DateTime.Now;

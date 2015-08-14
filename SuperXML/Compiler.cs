@@ -391,6 +391,8 @@ namespace Templator
                 return couldConvert && res;
             }
 
+            private List<string> _varCache;
+
             private string Inject(string expression)
             {
                 foreach (var v in _isExpressionRegex.Matches(expression).Cast<Match>()
@@ -432,23 +434,39 @@ namespace Templator
 
             private IEnumerable<string> GetVarNames(string expression)
             {
+                if (_varCache != null)
+                {
+                    //return it from caché!
+                    foreach (var cache in _varCache)
+                    {
+                        yield return cache;
+                    }
+                    yield break;
+                }
+
                 if (string.IsNullOrWhiteSpace(expression)) { yield return ""; yield break;}
                 expression += " "; 
                 var isString = false;
                 var isReading = false;
-                var read = "";
+                var read = new List<char>();
+                _varCache = new List<string>();
                 foreach (var c in expression)
                 {
                     if (isReading && !isString)
                     {
                         if (ValidContentName.Contains(c))
                         {
-                            read += c.ToString();
+                            read.Add(c);
                         }
                         else
                         {
                             isReading = false;
-                            if (!_keyWords.Contains(read)) yield return read;
+                            var s = new string(read.ToArray());
+                            if (!_keyWords.Contains(s))
+                            {
+                                _varCache.Add(s);
+                                yield return s;
+                            }
                         }
                     }
                     else
@@ -456,7 +474,7 @@ namespace Templator
                         if (ValidStartName.Contains(c) && !isString)
                         {
                             isReading = true;
-                            read = c.ToString();
+                            read = new List<char> {c};
                         }
                         if (c == '\'') isString = !isString;
                     }
