@@ -148,7 +148,7 @@ Evaluates if the element should be included according to condition. condition ca
 Repeats the element the same number of times as items in the array. Example
 * `<MyElement Tor.Repeat="number in numbers" myAttribute="{{number}}" />` where numbers is an array in the scope.
 
-Each repeated element has an cero based index that indicates its position in the repeater you can access it using `$index`, it has 2 boolean values indicating if the repeated item is even or odd, access them with `$even` or `$odd`
+Each repeated element has 3 new elements in the Scope `$index` (a cero based integer that indicates its position on repeater) `$even` and `$odd` (booleans that indicates whether $index is even or odd)
 ```
 //Input
 <element Tor.Repeat="element in elements">{{$index}}, is it even? {{ if ($even, 'yes!', 'no') }}</element>
@@ -160,29 +160,28 @@ Each repeated element has an cero based index that indicates its position in the
 <element>n</element>
 ```
 #Tor.Run Command
-Tor.Run is usefull to run Tor.If and Tor.Repeat on a bunch of elements or just on strings.
-Elements:
+`Tor.Run` is useful when you need to run a command on a set of Xml elemnts or just when you need for example to write a string according to a condition.
+
+`Tor.Run` if ignored when compiled.
+
+**Example 1** use it to run `Tor.Repeater` on a group of elements
 ```
 <Document>
   <Tor.Run Tor.Repeat="number in numbers">
     <text1></text1>
     <text2></text2>
-    ...
     <text3></text3>
   </Tor.Run>
   <Tor.Run Tor.If="8 > 7">
     <text1></text1>
     <text2></text2>
-    ...
     <text3></text3>
   </Tor.Run>
 </Document>
 ```
-Strings (here an exmaple to make a list):
+**Example2** Writing a string according to condition
 ```
-<Tor.Run Tor.Repeat="e in elements" Tor.If="e.age > 25">
-  * {{e.name}}, age {{e.age}}
-</Tor.Run>
+Hello I need a <Tor.Run If="user.age >= 18">beer</Tor.Run><Tor.Run If="user.age < 18">juice</Tor.Run>
 ```
 #Math and Logical Operatos
 math operations are evaluated by Ncalc, basically it works with the same syntax used in C#. for more info go to https://ncalc.codeplex.com/
