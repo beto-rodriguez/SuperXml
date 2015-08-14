@@ -139,10 +139,16 @@ dont forget to use `compiler.CompileXml(@"C:\...\myXml.xml");` if source is a fi
 #HTML
 Coming Soon...
 #Tor.If Command
-Evaluates if the element should be included according to condition. condition can include everything supported by ncalc (most of common things). examples:
+Evaluates if the element should be included according to a condition. condition can include everything supported by ncalc (most of common things). examples:
 * `<MyElement Tor.If="10 > 6"/>` numeric.
 * `<MyElement Tor.If="aValueFromScope == 'visible'"/>` string and from scope
 * `<MyElement Tor.If="10 > h && aValueFromScope == 'visible'"/>` another example
+
+`Tor.If ` is useful when you need to include or ignore a specific element but what happens if you need for example to decide an Xml attribute according to a condition?
+ 
+in that case you should use NCalc `if` function example: 
+
+`<Element type="if(10 == 5, '10 is equals to 5', '10 is diferent to 5')"></Element>`
 
 #Tor.Repat Command
 Repeats the element the same number of times as items in the array. Example
