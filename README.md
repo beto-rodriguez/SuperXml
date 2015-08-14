@@ -154,8 +154,8 @@ var compiled = new Compiler()
   </content>
 </document>
 ```
-the only diference from **2.a** is that now you need to call the `compiler.CompileXml()` method, because souce is now Xml,
-the compile xml can called with the next parameters:
+the only diference from **2.a** is that now you need to call the `compiler.CompileXml()` method, because source is now Xml,
+`compileXml()` can be called with the next parameters:
   1. `compiler.CompileXml(@"C:\...\myXml.xml")` a string, indicating the path of the XmlFile
   2. `compiler.CompileXml(new StringReader("<doc><.../></doc>"));` a StringReader initialized with the template
   3. From a stream
