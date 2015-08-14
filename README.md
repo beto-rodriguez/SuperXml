@@ -19,7 +19,8 @@ once it is installed you can use the `Compiler` class, you can find it at namesp
  1. Create a `Compiler` class
  2. Add as many elements to the `Scope` as you need
  3. Feed your template and get the result
-#Example 1,Hello World
+
+# Example 1,Hello World
 ```
 // 1. Create a copiler class
 Compiler compiler = new Compiler(); 
