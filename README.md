@@ -160,6 +160,7 @@ the only diference from **2.a** is that now you need to call the `compiler.Compi
   2. `compiler.CompileXml(new StringReader("<doc><.../></doc>"));` a StringReader initialized with the template
   3. From a stream
   4. From a Custom XmlReader Class
+
 #HTML
 Coming Soon...
 #Tor.If Command
