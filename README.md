@@ -15,8 +15,26 @@ then in the `Package Manager console` write the next command.
 Install-Package Tor
 ```
 once it is installed you can use the `Compiler` class, you can find it at namespace `Templator`.
-#Example
-The first step to compile a template is to set up a compiler class. You can add elements to your compiler Scope so they can be evaluated when compiled. You can add as many elements as you need they can be of any type. when you add an element that already exists in the scope it will override the last value.
+#How to use It?
+ 1. Create a `Compiler` class
+ 2. Add as many elements to the `Scope` as you need
+ 3. Feed your template and get the result
+#Example 1,Hello World
+```
+// 1. Create a copiler class
+Compiler compiler = new Compiler(); 
+
+// 2. add Elements to your Scope, the first parameter is key, second is value
+//      key:    the 'variable name' for the compiler
+//      value:  the value of the varialbe in this case the string "world"
+compiler.AddElementToScope("name", "world")
+
+//3. Call the compile Method and feed the template t get the result
+string result = compiler.CompileString("Hello {{name}}!");
+//now results contains a "Hello wolrd!"
+```
+#Example 2, multiple scope elements
+for example 2.a and 2.b we are going to use the scope defined below
 ```
 var compiler = new Compiler()
                 .AddElementToScope("name", "Excel")
@@ -38,8 +56,8 @@ compiler.Compile("Hello {{name}}") // a string
 compiler.CompileXml(@"c:/.../file.xml"); //a xml file
 compiler.CompileXml(new StringReader("<doc><.../></doc>"));//a xml string
 ```
-#String Example
-Template:
+#2.a Compile it from a string template 
+**Remplate**
 ```
 Hello {{name}}, you are a document with a size of {{width}}x{{height}} and an 
 area of {{width*height}}
@@ -52,7 +70,7 @@ now here you can see a filtered list of clases
   <Tor.Run Tor.Repeat="e in elements" Tor.If="e.age > 25">-{{e.name}}, age {{e.age}}
   </Tor.Run>
 ```
-Result:
+**Result:**
 ```
 Hello Excel, you are a document with a size of 100x500 and an area of 50000
 
@@ -68,7 +86,7 @@ now here you can see a filtered list of clases
   -Edit, age 82
   -Susan, age 37
 ```
-this is how it looks in C#
+this is how the code should look
 ```
 var template = "...a string containing the template of above..."
 var compiled = new Compiler()
@@ -87,8 +105,8 @@ var compiled = new Compiler()
                 .CompileString(template);
   //compiled now contains the string of the result above
 ```
-#XLM File Example
-Input XML
+#2.b from a Xml File
+**Template**
 ```
 <document>
   <name>my name is {{name}}</name>
@@ -106,7 +124,7 @@ Input XML
   </content> 
 </document>
 ```
-Compiled
+**Result**
 ```
 <document>
   <name>my name is Excel</name>
@@ -135,7 +153,12 @@ Compiled
   </content>
 </document>
 ```
-dont forget to use `compiler.CompileXml(@"C:\...\myXml.xml");` if source is a file or `compiler.CompileXml(new StringReader("<doc><.../></doc>"));` if source is a string.
+the only diference from **2.a** is that now you need to call the `compiler.CompileXml()` method, because souce is now Xml,
+the compile xml can called with the next parameters:
+  1. `compiler.CompileXml(@"C:\...\myXml.xml")` a string, indicating the path of the XmlFile
+  2. `compiler.CompileXml(new StringReader("<doc><.../></doc>"));` a StringReader initialized with the template
+  3. From a stream
+  4. From a Custom XmlReader Class
 #HTML
 Coming Soon...
 #Tor.If Command
