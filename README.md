@@ -35,7 +35,7 @@ string result = compiler.CompileString("Hello {{name}}!");
 //now results contains a "Hello wolrd!"
 ```
 #Example 2, multiple scope elements
-for example 2.a and 2.b we are going to use the scope defined below
+for example **2.a** and **2.b** we are going to use the scope defined below
 ```
 var compiler = new Compiler()
                 .AddElementToScope("name", "Excel")
@@ -58,7 +58,7 @@ compiler.CompileXml(@"c:/.../file.xml"); //a xml file
 compiler.CompileXml(new StringReader("<doc><.../></doc>"));//a xml string
 ```
 #2.a Compile it from a string template 
-**Remplate**
+**Template**
 ```
 Hello {{name}}, you are a document with a size of {{width}}x{{height}} and an 
 area of {{width*height}}
