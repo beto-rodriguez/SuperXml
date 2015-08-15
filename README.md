@@ -291,6 +291,53 @@ Each repeated element has some extra Scope items:
 ```
 Hello I need a <Tor.Run If="user.age >= 18">beer</Tor.Run><Tor.Run If="user.age < 18">juice</Tor.Run>
 ```
+#Filters
+Filters is an easy way to display an expression in a custom format. for example when you have a decimal value `102.312` and you need it to display it as currency, all you need to do is `{{102.312 | currency}}` and you will get `$102.31`. **Tor** includes already the next filters:
+  * `currency`: it takes a numberic value and returns `input.ToString("C")`.
+
+You can add as many filters as you need adding elements to `Filters` dictiontary of the static `Compiler` class.
+**Example:**
+```
+//consider that you cant add a repeated element to a dictionary
+//so when you add a filter be sure that this code is only hit once
+Compiler.Filters.Add("helloFilter", input =>
+            {
+                return "Hello " + input;
+            });
+```
+After you added your filter you can use it in your markup.
+```
+var compiled = new Compiler().AddElementToScope("elements", new []
+                {
+                    new User {Name = "John", Age=13},
+                    new User {Name = "Maria", Age=57},
+                    new User {Name = "Mark", Age=23},
+                    new User {Name = "Edit", Age=82},
+                    new User {Name = "Susan", Age=37}
+                }).CompileString();
+```
+**Input**
+```
+<Tor.Run Tor.Repeat="e in elements">
+  {{e.Name | helloFilter}}
+ </Tor.Run>
+```
+**Output**
+```
+
+  Hello John
+ 
+  Hello Maria
+ 
+  Hello Mark
+ 
+  Hello Edit
+ 
+  Hello Susan
+ 
+```
+use a filter when ever you need to change the output of a expression. another application could be to return for example input times 2.
+
 #Math and Logical Operatos
 math operations are evaluated by Ncalc, basically it works with the same syntax used in C#. for more info go to https://ncalc.codeplex.com/
 ```
