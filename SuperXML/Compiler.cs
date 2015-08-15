@@ -21,17 +21,13 @@
 //SOFTWARE.
 
 using System;
-using System.CodeDom;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Web.UI.WebControls;
 using System.Xml;
-using System.Xml.Serialization;
 using NCalc;
 
 namespace Templator
@@ -85,7 +81,7 @@ namespace Templator
             '_', '$', '1','2','3','4','5','6','7','8','9','0', '.', '[', ']' , '(' , ')'
         };
 
-        private static string[] _keyWords = {"if"};
+        private static readonly string[] KeyWords = {"if"};
 
         public XmlWriterSettings XmlWriterSettings { get; set; }
 
@@ -436,82 +432,6 @@ namespace Templator
                 return expression;
             }
 
-            private string Evaluate(string expression, IEnumerable<string> cache)
-            {
-                var originalExpression = expression;
-                var expAndFilt = expression.Split('|');
-                expression = expAndFilt[0];
-                var p = 0;
-                var parameters = new Dictionary<string, object>();
-
-                foreach (var varName in cache)
-                {
-                    dynamic value = GetValueFromScope(varName);
-                    expression = Regex.Replace(expression, (varName.StartsWith("$") ? "[\\$]" : "\\b") + varName.Replace("$", "") + "\\b", "[p" + p + "]");
-                    parameters.Add("p" + p , value);
-                    p++;
-                }
-
-                if (string.IsNullOrWhiteSpace(expression)) return "";
-                var e = new Expression(expression.Replace("&gt;", ">").Replace("&lt;", "<"), EvaluateOptions.NoCache);
-                foreach (var parameter in parameters) e.Parameters[parameter.Key] = parameter.Value ?? false;
-
-                try
-                {
-                    var result = e.Evaluate();
-                    return expAndFilt.Length > 1
-                        ? Filters[expAndFilt[1].Trim()](result)
-                        : result.ToString();
-                }
-                catch
-                {
-                    return "{{ " + originalExpression + " }}";
-                }
-            }
-
-            private IEnumerable<string> GetVarNames(string expression)
-            {
-                var result = new List<string>();
-                if (string.IsNullOrWhiteSpace(expression)) return result;
-
-                expression += " ";
-                var isString = false;
-                var isReading = false;
-                var isParameter = false;
-                var read = new List<char>();
-                foreach (var c in expression)
-                {
-                    if (isReading && !isString)
-                    {
-                        if (ValidContentName.Contains(c) || isParameter)
-                        {
-                            if (c == '(') isParameter = true;
-                            if (c == ')') isParameter = false;
-                            read.Add(c);
-                        }
-                        else
-                        {
-                            isReading = false;
-                            var s = new string(read.ToArray());
-                            if (!_keyWords.Contains(s))
-                            {
-                                result.Add(s);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (ValidStartName.Contains(c) && !isString)
-                        {
-                            isReading = true;
-                            read = new List<char> { c };
-                        }
-                        if (c == '\'') isString = !isString;
-                    }
-                }
-                return result;
-            }
-
             public void Run(XmlWriter writer)
             {
                 switch (Type)
@@ -565,10 +485,11 @@ namespace Templator
                             case LectureType.Variable:
                                 if (!ValidContentName.Contains(c))
                                 {
+                                    var l = new string(read.ToArray());
                                     Items.Add(new CExpressionItem
                                     {
-                                        FromScope = true,
-                                        Value = new string(read.ToArray())
+                                        FromScope = !KeyWords.Contains(l),
+                                        Value = l
                                     });
                                     read.Clear();
                                     type = LectureType.Unknow;
@@ -638,7 +559,7 @@ namespace Templator
                 private List<CExpressionItem> Items { get; }
                 private XmlElement Parent { get; }
                 private string OriginalExpression { get; }
-                private string Filter { get; set; }
+                private string Filter { get; }
 
                 public string Evaluate()
                 {
@@ -709,8 +630,8 @@ namespace Templator
                 }
             }
 
-            public string Name { get; set; }
-            public List<string> Children { get; set; }
+            public string Name { get; }
+            public List<string> Children { get; }
 
             public dynamic GetValue(dynamic obj)
             {
