@@ -165,6 +165,7 @@ the only diference from **2.a** is that now you need to call the `compiler.Compi
 # Example 3, multiple features
 consider next Xml as template, and numbers is an array of integers containing only 2 elements (0, 1)
 ```
+<doc>
 <Tor.Run Tor.Repeat="a in numbers">
     <Tor.Run Tor.Repeat="b in numbers" >
 		    <element row="{{$parent.$index+1}}" column="{{$index+1}}">
@@ -175,9 +176,11 @@ consider next Xml as template, and numbers is an array of integers containing on
 		   </element>      
     </Tor.Run>
   </Tor.Run>
+</doc>
 ```
 will compile as
 ```
+<doc>
 <element row="1" column="1">
           a) from a local scope variable $0.00, 0
           b) from an array: 0
@@ -202,6 +205,7 @@ will compile as
           c) from parent scope: 1
           d) is it even? nope
   </element>
+</doc>
  ```
 #HTML
 Coming Soon...
