@@ -3,8 +3,8 @@
 Templator (Tor) is just a light weight and easy to use templating engine library, useful to create string, xml and Html Templates.
 
 Why another template engine?
-  * Multitype support
-  * Math evaluators
+  * Multi-type support.
+  * Math expressions.
   * AngularJS-like markup, angular js from google has a lot of support and if you are familiar with it your are familiar with this library
   * Support for nested elements. you can nest all commands you need.
   * Expression filters, for example make an integer (10) to $10.00
