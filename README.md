@@ -8,7 +8,7 @@ Why another template engine?
   * **AngularJs (1.*)**-like markup, from google has a lot of support and if you are familiar with it your are familiar with this library
   * Support for nested elements. you can nest all commands you need.
   * Expression filters, for example make an integer (10) to $10.00
-  * Open source, do what ever you need with this code, improve it, remove features, for comercial and no commercial purposes. [License](https://github.com/beto-rodriguez/Templator/blob/master/LICENSE.txt).
+  * Open source, do what ever you need with this code, improve it (please), remove features, for comercial and no commercial purposes. [License](https://github.com/beto-rodriguez/Templator/blob/master/LICENSE.txt).
 
 #Install
 From visual studio go to `Tools` -> `Nuget Package Manager` -> `Package Manager Console`
