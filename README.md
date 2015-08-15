@@ -423,4 +423,5 @@ var onlyContet = compiler.CompileXml(new StringReader(SourceBox.Text),
 
 #Debug
 when a property is not found in the Compiler Scope, Compiler will let you know wich name could not be found. it uses Trace.WriteLine(), so in visual studio you will find it in the output window.
-Warning when a property is not found the impact in performance is huge!.
+
+**Warning** when a property is not found the impact in performance is huge!
