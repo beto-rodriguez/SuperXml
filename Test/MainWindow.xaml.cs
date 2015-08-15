@@ -14,6 +14,10 @@ namespace Test
         public MainWindow()
         {
             InitializeComponent();
+            Compiler.Filters.Add("helloFilter", input =>
+            {
+                return "Hello " + input;
+            });
         }
 
         private int[] _generateInts(int times)
@@ -41,7 +45,9 @@ namespace Test
                     new User {Name = "Edit", Age=82},
                     new User {Name = "Susan", Age=37}
                 })
-                .AddElementToScope("numbers", _generateInts(5));
+                .AddElementToScope("numbers", _generateInts(2));
+
+            
 
             var startedTime = DateTime.Now;
             //var compiled = compiler.CompileXml(new StringReader(SourceBox.Text));

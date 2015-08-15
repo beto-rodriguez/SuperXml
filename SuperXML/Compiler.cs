@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -386,7 +387,7 @@ namespace Templator
 
                 var i = 0;
 
-                foreach (var item in items)
+                foreach (var item in items ?? new List<int> ())
                 {
                     var even = i%2 == 0;
                     yield return new Dictionary<string, dynamic>
