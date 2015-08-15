@@ -222,8 +222,20 @@ in that case you should use NCalc `if` function example:
 `<Element type="{{if(10 == 5, '10 is equals to 5', '10 is diferent to 5')}}"></Element>`
 
 #Tor.Repat Command
-Repeats the element the same number of times as items in the array. Example
-* `<MyElement Tor.Repeat="number in numbers" myAttribute="{{number}}" />` where numbers is an array in the scope.
+Repeats the element the same number of times as items in the array.
+
+**Exmaple **
+consider numbers an array of integers in the Scope
+
+`<MyElement Tor.Repeat="number in numbers" myAttribute="{{number}}" />`
+
+**Result**
+```
+<MyElement myAttribute="1" />
+<MyElement myAttribute="2" />
+<MyElement myAttribute="3" />
+... 
+```
 
 Each repeated element has some extra Scope items:
  * `$index`: a cero based integer that indicates its position on repeater.
