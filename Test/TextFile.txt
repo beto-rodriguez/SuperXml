@@ -9,10 +9,12 @@ now here you can see a filtered list of clases
   </Tor.Run>
 
   <Tor.Run Tor.Repeat="a in numbers">
-    <Tor.Run Tor.Repeat="b in numbers">
-      a) from a local scope variable {{a | currency}}, {{b}}
-      b) from an array: {{numbers[0]}}
-      c) from parent scope: {{$parent.$index}}
-	  d) is it even? {{if($even, 'yes', 'nope')}}
+    <Tor.Run Tor.Repeat="b in numbers" >
+		<element row="{{$parent.$index+1}}" column="{{$index+1}}">
+			a) from a local scope variable {{a | currency}}, {{b}}
+			b) from an array: {{numbers[0]}}
+			c) from parent scope: {{$parent.$index}}
+			d) is it even? {{if($even, 'yes', 'nope')}}
+		</element>      
     </Tor.Run>
   </Tor.Run>

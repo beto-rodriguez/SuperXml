@@ -400,8 +400,8 @@ namespace Templator
                 }
             }
 
-            private Dictionary<string, CExpression> _cache;
-            private CExpression _ifCache; 
+            private Dictionary<string, CExpression> _cache = new Dictionary<string, CExpression>();
+            private CExpression _ifCache;
 
             private bool If()
             {
@@ -417,16 +417,10 @@ namespace Templator
 
             private string Inject(string expression)
             {
-                var buildingCache = false;
-                if (_cache == null)
-                {
-                    buildingCache = true;
-                    _cache = new Dictionary<string, CExpression>();
-                }
                 foreach (var v in IsExpressionRegex.Matches(expression).Cast<Match>()
                             .GroupBy(x => x.Value).Select(varGroup => varGroup.First().Value))
                 {
-                    if (buildingCache) _cache.Add(v, new CExpression(v, this));
+                    if (!_cache.ContainsKey(v)) _cache.Add(v, new CExpression(v, this));
                     expression = expression.Replace("{{" + v + "}}", _cache[v].Evaluate());
                 }
                 return expression;
