@@ -41,7 +41,7 @@ namespace Test
                     new User {Name = "Edit", Age=82},
                     new User {Name = "Susan", Age=37}
                 })
-                .AddElementToScope("numbers", _generateInts(10000));
+                .AddElementToScope("numbers", _generateInts(5));
 
             var startedTime = DateTime.Now;
             //var compiled = compiler.CompileXml(new StringReader(SourceBox.Text));

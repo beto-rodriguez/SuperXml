@@ -13,5 +13,6 @@ now here you can see a filtered list of clases
       a) from a local scope variable {{a | currency}}, {{b}}
       b) from an array: {{numbers[0]}}
       c) from parent scope: {{$parent.$index}}
+	  d) is it even? {{if($even, 'yes', 'nope')}}
     </Tor.Run>
   </Tor.Run>
