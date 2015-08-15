@@ -224,7 +224,8 @@ in that case you should use NCalc `if` function example:
 #Tor.Repat Command
 Repeats the element the same number of times as items in the array.
 
-**Exmaple **
+**Example**
+
 consider numbers an array of integers in the Scope
 
 `<MyElement Tor.Repeat="number in numbers" myAttribute="{{number}}" />`
