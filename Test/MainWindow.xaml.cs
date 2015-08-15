@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
@@ -29,8 +28,6 @@ namespace Test
 
         private void CompileClick(object sender, RoutedEventArgs e)
         {
-
-
             var compiler = new Compiler()
                 .AddElementToScope("name", "Excel")
                 .AddElementToScope("width", 100)
@@ -38,14 +35,13 @@ namespace Test
                 .AddElementToScope("bounds", new[] {10, 0, 10, 0})
                 .AddElementToScope("elements", new []
                 {
-                    new { name = "John", age= 10 },
-                    new { name = "Maria", age= 57 },
-                    new { name = "Mark", age= 23 },
-                    new { name = "Edit", age= 82 },
-                    new { name = "Susan", age= 37 }
-                }).AddElementToScope("aNullValue", null)
+                    new User {Name = "John", Age=13},
+                    new User {Name = "Maria", Age=57},
+                    new User {Name = "Mark", Age=23},
+                    new User {Name = "Edit", Age=82},
+                    new User {Name = "Susan", Age=37}
+                })
                 .AddElementToScope("numbers", _generateInts(10000));
-
 
             var startedTime = DateTime.Now;
             //var compiled = compiler.CompileXml(new StringReader(SourceBox.Text));
@@ -72,5 +68,11 @@ namespace Test
                 SourceBox.Text = sr.ReadToEnd();
             }
         }
+
+        public class User
+        {
+            public string Name { get; set; }
+            public int Age { get; set; }
+        } 
     }
 }

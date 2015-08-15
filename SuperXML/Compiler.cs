@@ -21,13 +21,17 @@
 //SOFTWARE.
 
 using System;
+using System.CodeDom;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Web.UI.WebControls;
 using System.Xml;
+using System.Xml.Serialization;
 using NCalc;
 
 namespace Templator
@@ -37,21 +41,37 @@ namespace Templator
         public Compiler()
         {
             Scope = new Dictionary<string, dynamic>();
+        }
+
+        static Compiler()
+        {
             RepeaterKey = "Tor.Repeat";
             IfKey = "Tor.If";
             TemplateKey = "Tor.Run";
-            _isExpressionRegex = new Regex("(?<={{).*?(?=}})");
-            _forEachRegex =
+            IsExpressionRegex = new Regex("(?<={{).*?(?=}})");
+            ForEachRegex =
                 new Regex(@"^\s*([a-zA-Z_]+[\w]*)\s+in\s+(([a-zA-Z][\w]*(\.[a-zA-Z][\w]*)*)|\[(.+)(,\s*.+)*\])\s*$",
                 RegexOptions.Singleline);
+            Filters = new Dictionary<string, Func<object, string>>
+            {
+                ["currency"] = x =>
+                {
+                    //this is simple and dirty to support all numeric types.
+                    var s = x.ToString();
+                    double d;
+                    double.TryParse(s, out d);
+                    return d.ToString("C");
+                }
+            };
         }
 
         public static string RepeaterKey { get; set; }
         public static string IfKey { get; set; }
         public static string TemplateKey  { get; set; }
+        public static Dictionary<string, Func<object, string>> Filters { get; }
 
-        private static Regex _isExpressionRegex;
-        private static Regex _forEachRegex;
+        private static readonly Regex IsExpressionRegex;
+        private static readonly Regex ForEachRegex;
         private static readonly char[] ValidStartName =
         {
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -62,7 +82,7 @@ namespace Templator
         {
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-            '_', '$', '1','2','3','4','5','6','7','8','9','0', '.'
+            '_', '$', '1','2','3','4','5','6','7','8','9','0', '.', '[', ']' , '(' , ')'
         };
 
         private static string[] _keyWords = {"if"};
@@ -310,32 +330,36 @@ namespace Templator
             /// Scope of current Element.
             /// </summary>
             public Dictionary<string, dynamic> Scope { get; set; }
-            private dynamic GetValueFromScope(string propertyName)
+            public dynamic GetValueFromScope(string propertyName)
             {
                 try
                 {
                     var keys = propertyName.Split('.');
-                    var root = keys[0];
+                    var property = new PropertyAccess(keys[0]);
 
                     var scope = Scope;
                     var parent = this;
-                    while (!scope.ContainsKey(root))
+                    while (!scope.ContainsKey(property.Name))
                     {
                         parent = parent.Parent;
                         scope = parent.Scope;
                     }
 
-                    var obj = scope[root];
-                    if (keys.Length == 1) return obj;
-
+                    var obj = scope[property.Name];
                     var level = 1;
-                    do
-                    {
-                        obj = obj.GetType().GetProperty(keys[level]).GetValue(obj, null);
-                        level++;
-                    } while (level < keys.Length);
 
-                    return obj;
+                    while (level < keys.Length)
+                    {
+                        obj = property.GetValue(obj);
+                        property = new PropertyAccess(keys[level]);
+                        var t = obj.GetType();
+                        obj = t == typeof(Dictionary<string, dynamic>) || t.IsArray 
+                            ? obj[property.Name]
+                            : t.GetProperty(property.Name).GetValue(obj, null);
+                        level++;
+                    }
+
+                    return property.GetValue(obj);
                 }
                 catch (Exception)
                 {
@@ -343,7 +367,6 @@ namespace Templator
                     return false;
                 }
             }
-
             private IEnumerable<Dictionary<string, dynamic>> Scopes()
             {
                 var repeaterAttribute = Attributes.FirstOrDefault(x => x.Name == RepeaterKey);
@@ -355,12 +378,12 @@ namespace Templator
 
                 var expression = repeaterAttribute.Value;
 
-                if (!_forEachRegex.IsMatch(expression))
+                if (!ForEachRegex.IsMatch(expression))
                     throw new FormatException(
                         "Compilation Error: ForEach was expecting an expression like " +
                         "'varName in [value1, value2, value3..., valueN]'");
 
-                var match = _forEachRegex.Match(expression);
+                var match = ForEachRegex.Match(expression);
                 var repeater = match.Groups[1].ToString();
                 var scopeName = match.Groups[3].ToString();
                 var items = GetValueFromScope(scopeName);
@@ -375,44 +398,56 @@ namespace Templator
                         [repeater] = item,
                         ["$index"] = i++,
                         ["$odd"] = !even,
-                        ["$even"] = even
+                        ["$even"] = even,
+                        ["$parent"] = Parent.Scope
                     };
                 }
             }
+
+            private Dictionary<string, CExpression> _cache;
+            private CExpression _ifCache; 
 
             private bool If()
             {
                 var at = Attributes.FirstOrDefault(x => x.Name == IfKey);
                 var expression = at?.Value;
                 if (string.IsNullOrEmpty(expression)) return true;
-                var e = Evaluate(expression);
+                if (_ifCache == null) _ifCache = new CExpression(expression, this);
+                var e = _ifCache.Evaluate();
                 bool res;
                 var couldConvert = bool.TryParse(e, out res);
                 return couldConvert && res;
             }
 
-            private List<string> _varCache;
-
             private string Inject(string expression)
             {
-                foreach (var v in _isExpressionRegex.Matches(expression).Cast<Match>()
+                var buildingCache = false;
+                if (_cache == null)
+                {
+                    buildingCache = true;
+                    _cache = new Dictionary<string, CExpression>();
+                }
+                foreach (var v in IsExpressionRegex.Matches(expression).Cast<Match>()
                             .GroupBy(x => x.Value).Select(varGroup => varGroup.First().Value))
                 {
-                    expression = expression.Replace("{{" + v + "}}", Evaluate(v));
+                    if (buildingCache) _cache.Add(v, new CExpression(v, this));
+                    expression = expression.Replace("{{" + v + "}}", _cache[v].Evaluate());
                 }
                 return expression;
             }
 
-            private string Evaluate(string expression)
+            private string Evaluate(string expression, IEnumerable<string> cache)
             {
                 var originalExpression = expression;
+                var expAndFilt = expression.Split('|');
+                expression = expAndFilt[0];
                 var p = 0;
                 var parameters = new Dictionary<string, object>();
 
-                foreach (var varName in GetVarNames(expression))
+                foreach (var varName in cache)
                 {
                     dynamic value = GetValueFromScope(varName);
-                    expression = expression.Replace(varName, "[p" + p + "]");
+                    expression = Regex.Replace(expression, (varName.StartsWith("$") ? "[\\$]" : "\\b") + varName.Replace("$", "") + "\\b", "[p" + p + "]");
                     parameters.Add("p" + p , value);
                     p++;
                 }
@@ -423,39 +458,35 @@ namespace Templator
 
                 try
                 {
-                    var result = e.Evaluate().ToString();
-                    return result;
+                    var result = e.Evaluate();
+                    return expAndFilt.Length > 1
+                        ? Filters[expAndFilt[1].Trim()](result)
+                        : result.ToString();
                 }
                 catch
                 {
-                    return originalExpression;
+                    return "{{ " + originalExpression + " }}";
                 }
             }
 
             private IEnumerable<string> GetVarNames(string expression)
             {
-                if (_varCache != null)
-                {
-                    //return it from caché!
-                    foreach (var cache in _varCache)
-                    {
-                        yield return cache;
-                    }
-                    yield break;
-                }
+                var result = new List<string>();
+                if (string.IsNullOrWhiteSpace(expression)) return result;
 
-                if (string.IsNullOrWhiteSpace(expression)) { yield return ""; yield break;}
-                expression += " "; 
+                expression += " ";
                 var isString = false;
                 var isReading = false;
+                var isParameter = false;
                 var read = new List<char>();
-                _varCache = new List<string>();
                 foreach (var c in expression)
                 {
                     if (isReading && !isString)
                     {
-                        if (ValidContentName.Contains(c))
+                        if (ValidContentName.Contains(c) || isParameter)
                         {
+                            if (c == '(') isParameter = true;
+                            if (c == ')') isParameter = false;
                             read.Add(c);
                         }
                         else
@@ -464,8 +495,7 @@ namespace Templator
                             var s = new string(read.ToArray());
                             if (!_keyWords.Contains(s))
                             {
-                                _varCache.Add(s);
-                                yield return s;
+                                result.Add(s);
                             }
                         }
                     }
@@ -474,11 +504,12 @@ namespace Templator
                         if (ValidStartName.Contains(c) && !isString)
                         {
                             isReading = true;
-                            read = new List<char> {c};
+                            read = new List<char> { c };
                         }
                         if (c == '\'') isString = !isString;
                     }
                 }
+                return result;
             }
 
             public void Run(XmlWriter writer)
@@ -486,12 +517,14 @@ namespace Templator
                 switch (Type)
                 {
                     case BufferCommands.NewElement:
+                        var isTemplate = Name == TemplateKey;
+                        var ns = Attributes.FirstOrDefault(x => x.Name == "xmlns");
                         foreach (var scope in Scopes())
                         {
                             Scope = scope ?? Scope;
+
                             if (!If()) continue;
-                            var isTemplate = Name == TemplateKey;
-                            var ns = Attributes.FirstOrDefault(x => x.Name == "xmlns");
+                            
                             if (!isTemplate)
                                 if (ns != null) writer.WriteStartElement(Name, ns.Value);
                                 else writer.WriteStartElement(Name);
@@ -513,6 +546,148 @@ namespace Templator
                         break;
                 }
             }
+
+            private class CExpression
+            {
+                public CExpression(string expression, XmlElement parent)
+                {
+                    Items = new List<CExpressionItem>();
+                    Parent = parent;
+                    OriginalExpression = expression;
+
+                    var read = new List<char>();
+                    var type = LectureType.Unknow;
+
+                    foreach (var c in expression)
+                    {
+                        switch (type)
+                        {
+                            case LectureType.Variable:
+                                if (!ValidContentName.Contains(c))
+                                {
+                                    Items.Add(new CExpressionItem
+                                    {
+                                        FromScope = true,
+                                        Value = new string(read.ToArray())
+                                    });
+                                    read.Clear();
+                                    type = LectureType.Unknow;
+                                }
+                                break;
+                            case LectureType.String:
+                                if (c == '\'')
+                                {
+                                    Items.Add(new CExpressionItem
+                                    {
+                                        FromScope = false,
+                                        Value = new string(read.ToArray())
+                                    });
+                                    read.Clear();
+                                    type = LectureType.Unknow;
+                                }
+                                break;
+                            case LectureType.Constant:
+                                if (ValidStartName.Contains(c) || c == '\'' || c == '|')
+                                {
+                                    Items.Add(new CExpressionItem
+                                    {
+                                        FromScope = false,
+                                        Value = new string(read.ToArray())
+                                    });
+                                    read.Clear();
+                                    type = LectureType.Unknow;
+                                }
+                                break;
+                        }
+                        if (type == LectureType.Unknow)
+                        {
+                            if (ValidStartName.Contains(c))
+                            {
+                                type = LectureType.Variable;
+                            }
+                            else
+                                switch (c)
+                                {
+                                    case '\'':
+                                        type = LectureType.String;
+                                        break;
+                                    case '|':
+                                        type = LectureType.Filter;
+                                        break;
+                                    default:
+                                        type = LectureType.Constant;
+                                        break;
+                                }
+                        }
+                        read.Add(c);
+                    }
+                    if (type != LectureType.Filter)
+                    {
+                        Items.Add(new CExpressionItem
+                        {
+                            FromScope = type == LectureType.Variable,
+                            Value = new string(read.ToArray())
+                        });
+                    }
+                    else
+                    {
+                        Filter = new string(read.ToArray()).Replace("|", "").Trim();
+                    }
+                }
+
+                private List<CExpressionItem> Items { get; }
+                private XmlElement Parent { get; }
+                private string OriginalExpression { get; }
+                private string Filter { get; set; }
+
+                public string Evaluate()
+                {
+                    var sb = new StringBuilder();
+                    var p = 0;
+                    var parameters = new Dictionary<string, object>();
+                    foreach (var i in Items)
+                    {
+                        if (i.FromScope)
+                        {
+                            sb.Append("[p");
+                            sb.Append(p);
+                            sb.Append("]");
+                            parameters.Add("p" + p, Parent.GetValueFromScope(i.Value) ?? false);   
+                            p++;
+                        }
+                        else
+                        {
+                            sb.Append(i.Value);
+                        }
+                    }
+
+                    var s = sb.ToString();
+                    if (string.IsNullOrWhiteSpace(s)) return "";
+                    var e = new Expression(s.Replace("&gt;", ">").Replace("&lt;", "<"), EvaluateOptions.NoCache)
+                    {
+                        Parameters = parameters
+                    };
+
+                    try
+                    {
+                        var result = e.Evaluate();
+                        return Filter != null 
+                            ? Filters[Filter](result)
+                            : result.ToString();
+                    }
+                    catch
+                    {
+                        Trace.WriteLine("Error Evaluating expression '" + OriginalExpression + "'");
+                        return "{{ " + OriginalExpression + " }}";
+                    }
+                }
+            }
+
+            private class CExpressionItem
+            {
+                public bool FromScope { get; set; }
+                public string Value { get; set; }
+            }
         }
 
         public class XmlAttribute
@@ -521,11 +696,52 @@ namespace Templator
             public string Value { get; set; }
         }
 
+        private class PropertyAccess
+        {
+            public PropertyAccess(string propertyName)
+            {
+                var ar = propertyName.Split('[', ']');
+                Name = ar[0];
+                Children = new List<string>();
+                for (var i = 1; i < ar.Length -1; i++)
+                {
+                    Children.Add(ar[i]);
+                }
+            }
+
+            public string Name { get; set; }
+            public List<string> Children { get; set; }
+
+            public dynamic GetValue(dynamic obj)
+            {
+                dynamic r = obj;
+                foreach (var child in Children)
+                {
+                    if (r.GetType().IsArray)
+                    {
+                        int index;
+                        int.TryParse(child, out index);
+                        r = r[index];
+                    }
+                    else
+                    {
+                        r = r[child];
+                    }
+                }
+                return r;
+            }
+        }
+
         public enum BufferCommands
         {
             NewElement,
             StringContent,
             NewDocument
+        }
+
+        private enum LectureType
+        {
+            Variable, String, Filter, Unknow, Constant
         }
     }
 }

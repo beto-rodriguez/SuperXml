@@ -5,5 +5,13 @@ now here is a list with your bounds:
   </Tor.Run>
 
 now here you can see a filtered list of clases
-  <Tor.Run Tor.Repeat="e in elements" Tor.If="e.age > 25">-{{e.name}}, age {{e.age}}
+  <Tor.Run Tor.Repeat="e in elements" Tor.If="e.Age > 25">-{{e.Name}}, age {{e.Age}}
+  </Tor.Run>
+
+  <Tor.Run Tor.Repeat="a in numbers">
+    <Tor.Run Tor.Repeat="b in numbers">
+      a) from a local scope variable {{a | currency}}, {{b}}
+      b) from an array: {{numbers[0]}}
+      c) from parent scope: {{$parent.$index}}
+    </Tor.Run>
   </Tor.Run>

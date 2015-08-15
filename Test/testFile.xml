@@ -8,9 +8,16 @@
     <bound Tor.Repeat="bound in bounds">{{bound}}</bound>
   </padding>
   <content>
-    <element Tor.Repeat="element in elements" Tor.If="element.age > 25">
-      <name>{{element.name}}</name>
-      <age>{{element.age}}</age>
+    <element Tor.Repeat="element in elements" Tor.If="element.Age > 25">
+      <name>{{element.Name}}</name>
+      <age>{{element.Age}}</age>
     </element>
-  </content> 
+  </content>
+  <Tor.Run Tor.Repeat="a in numbers">
+    <Tor.Run Tor.Repeat="b in numbers">
+      from a local scope variable {{a}}, {{b}}
+      from an array: {{numbers[0]}},
+      from parent scope: {{$parent.$index}},
+    </Tor.Run>
+  </Tor.Run>
 </document>
