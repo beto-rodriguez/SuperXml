@@ -292,7 +292,9 @@ Each repeated element has some extra Scope items:
 Hello I need a <Tor.Run If="user.age >= 18">beer</Tor.Run><Tor.Run If="user.age < 18">juice</Tor.Run>
 ```
 #Filters
-Filters is an easy way to display an expression in a custom format. for example when you have a decimal value `102.312` and you need it to display it as currency, all you need to do is `{{102.312 | currency}}` and you will get `$102.31`. **Tor** includes already the next filters:
+Filters is an easy way to display an expression in a custom format. for example when you have a decimal value `102.312` and you need it to display it as currency, all you need to do is use a expression as 
+`{{102.312 | currency}}`
+and you will get `$102.31`. **Tor** includes already the next filters:
   * `currency`: it takes a numberic value and returns `input.ToString("C")`.
 
 You can add as many filters as you need adding elements to `Filters` dictiontary of the static `Compiler` class.
