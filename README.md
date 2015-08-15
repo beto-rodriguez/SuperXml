@@ -7,6 +7,7 @@ Why another template engine?
   * Math evaluators
   * AngularJS-like markup, angular js from google has a lot of support and if you are familiar with it your are familiar with this library
   * Support for nested elements. you can nest all commands you need.
+  * Expression filters, for example make an integer (10) to $10.00
 
 #Install
 From visual studio go to `Tools` -> `Nuget Package Manager` -> `Package Manager Console`
@@ -20,7 +21,7 @@ once it is installed you can use the `Compiler` class, you can find it at namesp
  2. Add as many elements to the `Scope` as you need
  3. Feed your template and get the result
 
-# Example 1,Hello World
+# Example 1, Hello World
 ```
 // 1. Create a copiler class
 Compiler compiler = new Compiler(); 
@@ -161,6 +162,47 @@ the only diference from **2.a** is that now you need to call the `compiler.Compi
   3. From a stream
   4. From a Custom XmlReader Class
 
+# Example 3, multiple features
+consider next Xml as template, and numbers is an array of integers containing only 2 elements (0, 1)
+```
+<Tor.Run Tor.Repeat="a in numbers">
+    <Tor.Run Tor.Repeat="b in numbers" >
+		    <element row="{{$parent.$index+1}}" column="{{$index+1}}">
+			     a) from a local scope variable {{a | currency}}, {{b}}
+			     b) from an array: {{numbers[0]}}
+			     c) from parent scope: {{$parent.$index}}
+			     d) is it even? {{if($even, 'yes', 'nope')}}
+		   </element>      
+    </Tor.Run>
+  </Tor.Run>
+```
+will compile as
+```
+<element row="1" column="1">
+          a) from a local scope variable $0.00, 0
+          b) from an array: 0
+          c) from parent scope: 0
+          d) is it even? yes
+  </element>
+  <element row="1" column="2">
+          a) from a local scope variable $0.00, 1
+          b) from an array: 0
+          c) from parent scope: 0
+          d) is it even? nope
+  </element>
+  <element row="2" column="1">
+          a) from a local scope variable $1.00, 0
+          b) from an array: 0
+          c) from parent scope: 1
+          d) is it even? yes
+  </element>
+  <element row="2" column="2">
+          a) from a local scope variable $1.00, 1
+          b) from an array: 0
+          c) from parent scope: 1
+          d) is it even? nope
+  </element>
+ ```
 #HTML
 Coming Soon...
 #Tor.If Command
@@ -179,17 +221,52 @@ in that case you should use NCalc `if` function example:
 Repeats the element the same number of times as items in the array. Example
 * `<MyElement Tor.Repeat="number in numbers" myAttribute="{{number}}" />` where numbers is an array in the scope.
 
-Each repeated element has 3 new elements in the Scope `$index` (a cero based integer that indicates its position on repeater) `$even` and `$odd` (booleans that indicates whether $index is even or odd)
+Each repeated element has some extra Scope items:
+ * `$index`: a cero based integer that indicates its position on repeater.
+ * `$even`: a boolean value indicating if the position on the repeater even.
+ * `$odd`: a boolean value indicating if the position on the repeater odd.
+ * `$parent`: parent scope. 
+
+**Input**
 ```
-//Input
-<element Tor.Repeat="element in elements">{{$index}}, is it even? {{ if ($even, 'yes!', 'no') }}</element>
-//Output
-<element>0, is it even? yes!</element>
-<element>1, is it even? no</element>
-<element>2, is it even? yes!</element>
-...
-<element>n</element>
+<Tor.Run Tor.Repeat="a in numbers">
+    <Tor.Run Tor.Repeat="b in numbers" >
+		    <element row="{{$parent.$index+1}}" column="{{$index+1}}">
+			     a) from a local scope variable {{a | currency}}, {{b}}
+			     b) from an array: {{numbers[0]}}
+			     c) from parent scope: {{$parent.$index}}
+			     d) is it even? {{if($even, 'yes', 'nope')}}
+		   </element>      
+    </Tor.Run>
+  </Tor.Run>
 ```
+**Result**
+```
+<element row="1" column="1">
+          a) from a local scope variable $0.00, 0
+          b) from an array: 0
+          c) from parent scope: 0
+          d) is it even? yes
+  </element>
+  <element row="1" column="2">
+          a) from a local scope variable $0.00, 1
+          b) from an array: 0
+          c) from parent scope: 0
+          d) is it even? nope
+  </element>
+  <element row="2" column="1">
+          a) from a local scope variable $1.00, 0
+          b) from an array: 0
+          c) from parent scope: 1
+          d) is it even? yes
+  </element>
+  <element row="2" column="2">
+          a) from a local scope variable $1.00, 1
+          b) from an array: 0
+          c) from parent scope: 1
+          d) is it even? nope
+  </element>
+ ```
 #Tor.Run Command
 `Tor.Run` is useful when you need to run a command on a set of Xml elemnts or just when you need for example to write a string according to a condition.
 
@@ -214,6 +291,53 @@ Each repeated element has 3 new elements in the Scope `$index` (a cero based int
 ```
 Hello I need a <Tor.Run If="user.age >= 18">beer</Tor.Run><Tor.Run If="user.age < 18">juice</Tor.Run>
 ```
+#Filters
+Filters is an easy way to display an expression in a custom format. for example when you have a decimal value `102.312` and you need it to display it as currency, all you need to do is `{{102.312 | currency}}` and you will get `$102.31`. **Tor** includes already the next filters:
+  * `currency`: it takes a numberic value and returns `input.ToString("C")`.
+
+You can add as many filters as you need adding elements to `Filters` dictiontary of the static `Compiler` class.
+**Example:**
+```
+//consider that you cant add a repeated element to a dictionary
+//so when you add a filter be sure that this code is only hit once
+Compiler.Filters.Add("helloFilter", input =>
+            {
+                return "Hello " + input;
+            });
+```
+After you added your filter you can use it in your markup.
+```
+var compiled = new Compiler().AddElementToScope("elements", new []
+                {
+                    new User {Name = "John", Age=13},
+                    new User {Name = "Maria", Age=57},
+                    new User {Name = "Mark", Age=23},
+                    new User {Name = "Edit", Age=82},
+                    new User {Name = "Susan", Age=37}
+                }).CompileString();
+```
+**Input**
+```
+<Tor.Run Tor.Repeat="e in elements">
+  {{e.Name | helloFilter}}
+ </Tor.Run>
+```
+**Output**
+```
+
+  Hello John
+ 
+  Hello Maria
+ 
+  Hello Mark
+ 
+  Hello Edit
+ 
+  Hello Susan
+ 
+```
+use a filter when ever you need to change the output of a expression. another application could be to return for example input times 2.
+
 #Math and Logical Operatos
 math operations are evaluated by Ncalc, basically it works with the same syntax used in C#. for more info go to https://ncalc.codeplex.com/
 ```
