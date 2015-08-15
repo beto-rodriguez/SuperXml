@@ -221,7 +221,7 @@ in that case you should use NCalc `if` function example:
 
 `<Element type="{{if(10 == 5, '10 is equals to 5', '10 is diferent to 5')}}"></Element>`
 
-#Tor.Repat Command
+#Tor.Repeat Command
 Repeats the element the same number of times as items in the array.
 
 **Example**
