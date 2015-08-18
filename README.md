@@ -1,6 +1,6 @@
-# Templator (Tor)
+# Templator
 
-Templator (Tor) is just a light weight and easy to use template engine library, useful to create string, Xml and Html Templates.
+Templator is just a light weight and easy to use template engine library, useful to create string, Xml and Html Templates(working on it).
 
 Why another template engine?
   * Multi-type support.
@@ -8,7 +8,7 @@ Why another template engine?
   * **AngularJs (1.*)**-like markup, if you are familiar with it you’re are familiar with this library.
   * Support for nested elements.
   * Expression filters, for example make an integer `24` compile like `$24.00`.
-  * Open source, do whatever you need with this code, improve it (please), remove features, for commercial and no commercial purposes. [License](https://github.com/beto-rodriguez/Templator/blob/master/LICENSE.txt).
+  * Open source, do whatever you need with this code, improve it (please), remove features, for commercial and no commercial purposes. [License here](https://github.com/beto-rodriguez/Templator/blob/master/LICENSE.txt).
 
 #Install
 From visual studio go to `Tools` -> `Nuget Package Manager` -> `Package Manager Console` then in the `Package Manager console` write the next command.
@@ -65,12 +65,12 @@ Hello {{name}}, you are a document with a size of {{width}}x{{height}} and an
 area of {{width*height}}
 
 now here is a list with your bounds:
-  <Tor.Run Tor.Repeat="b in bounds">-value {{$index}}: {{b}}
-  </Tor.Run>
+  <trRun TrRepeat="b in bounds">-value {{$index}}: {{b}}
+  </trRun>
 
 now here you can see a filtered list of classes
-  <Tor.Run Tor.Repeat="e in elements" Tor.If="e.age > 25">-{{e.name}}, age {{e.age}}
-  </Tor.Run>
+  <trRun trRepeat="e in elements" trIf="e.age > 25">-{{e.name}}, age {{e.age}}
+  </trRun>
 ```
 **Result:**
 ```
@@ -116,7 +116,7 @@ var compiled = new Compiler()
   <height>{{height}}</height>
   <area>{{width*height}}</area>
   <padding>
-    <bound Tor.Repeat="bound in bounds">{{bound}}</bound>
+    <bound trRepeat="bound in bounds">{{bound}}</bound>
   </padding>
   <content>
     <element ForEach="element in elements" If="element.age > 25">
@@ -166,16 +166,16 @@ The only difference from **2.a** is that now you need to call `CompileXml()` met
 Consider next Xml as template, and `numbers` is an array of integers containing only 2 elements (0, 1)
 ```
 <doc>
-<Tor.Run Tor.Repeat="a in numbers">
-    <Tor.Run Tor.Repeat="b in numbers" >
+<trRun trRepeat="a in numbers">
+    <trRun trRepeat="b in numbers" >
 		    <element row="{{$parent.$index+1}}" column="{{$index+1}}">
 			     a) from a local scope variable {{a | currency}}, {{b}}
 			     b) from an array: {{numbers[0]}}
 			     c) from parent scope: {{$parent.$index}}
 			     d) is it even? {{if($even, 'yes', 'nope')}}
 		   </element>      
-    </Tor.Run>
-  </Tor.Run>
+    </trRun>
+  </trRun>
 </doc>
 ```
 will compile as
@@ -209,26 +209,26 @@ will compile as
  ```
 #HTML
 Coming Soon...
-#Tor.If Command
+#trIf Command
 Evaluates if the element should be included according to a condition. A condition can include everything supported by ncalc (most of common things). **Examples**:
-* `<MyElement Tor.If="10 > 6"/>` numeric.
-* `<MyElement Tor.If="aValueFromScope == 'visible'"/>` string and from scope
-* `<MyElement Tor.If="10 > h && aValueFromScope == 'visible'"/>` another example
+* `<MyElement trIf="10 > 6"/>` numeric.
+* `<MyElement trIf="aValueFromScope == 'visible'"/>` string and from scope
+* `<MyElement trIf="10 > h && aValueFromScope == 'visible'"/>` another example
 
-`Tor.If ` is useful when you need to include or ignore a specific element but what happens if you need for example to decide an Xml attribute according to a condition?
+`trIf ` is useful when you need to include or ignore a specific element but what happens if you need for example to decide an Xml attribute according to a condition?
  
 In that case you should use NCalc `if` function example: 
 
 `<Element type="{{if(10 == 5, '10 is equals to 5', '10 is diferent to 5')}}"></Element>`
 
-#Tor.Repeat Command
+#trRepeat Command
 Repeats the element the same number of times as items in the array.
 
 **Example**
 
 Consider `numbers` an array of integers in the Scope
 
-`<MyElement Tor.Repeat="number in numbers" myAttribute="{{number}}" />`
+`<MyElement trRepeat="number in numbers" myAttribute="{{number}}" />`
 
 **Result**
 ```
@@ -245,16 +245,16 @@ Each repeated element has some extra Scope items:
 
 **Input**
 ```
-<Tor.Run Tor.Repeat="a in numbers">
-    <Tor.Run Tor.Repeat="b in numbers" >
+<trRun trRepeat="a in numbers">
+    <trRun trRepeat="b in numbers" >
 		    <element row="{{$parent.$index+1}}" column="{{$index+1}}">
 			     a) from a local scope variable {{a | currency}}, {{b}}
 			     b) from an array: {{numbers[0]}}
 			     c) from parent scope: {{$parent.$index}}
 			     d) is it even? {{if($even, 'yes', 'nope')}}
 		   </element>      
-    </Tor.Run>
-  </Tor.Run>
+    </trRun>
+  </trRun>
 ```
 **Result**
 ```
@@ -283,27 +283,33 @@ Each repeated element has some extra Scope items:
           d) is it even? nope
   </element>
  ```
-#Tor.Run Command
-`Tor.Run` is useful when you need to run a command on a set of Xml elements or just when you need for example to write a string according to a condition. `Tor.Run` is ignored when compiled.
+#trRun Command
+`trRun` is useful when you need to run a command on a set of Xml elements or just when you need for example to write a string according to a condition. `trRun` is ignored when compiled.
 
-**Example 1** use it to run `Tor.Repeater` on a group of elements
+**Example 1** use it to run `trRepeater` on a group of elements
 ```
 <Document>
-  <Tor.Run Tor.Repeat="number in numbers">
+  <trRun trRepeat="number in numbers">
     <text1></text1>
     <text2></text2>
     <text3></text3>
-  </Tor.Run>
-  <Tor.Run Tor.If="8 > 7">
+  </trRun>
+  <trRun trIf="8 > 7">
     <text1></text1>
     <text2></text2>
     <text3></text3>
-  </Tor.Run>
+  </trRun>
 </Document>
 ```
 **Example2** Writing a string according to condition
 ```
-Hello I need a <Tor.Run If="user.age >= 18">beer</Tor.Run><Tor.Run If="user.age < 18">juice</Tor.Run>
+Hello I need a:
+<trRun trIf="user.age >= 18">
+  beer
+</trRun>
+<trRun trIf="user.age < 18">
+  juice
+</trRun>
 ```
 #Filters
 Filters is an easy way to display an expression in a custom format. for example when you have a decimal value `102.312` and you need it to display it as currency, all you need to do is use an expression as 
@@ -336,9 +342,9 @@ var compiled = new Compiler().AddElementToScope("elements", new []
 ```
 **Input**
 ```
-<Tor.Run Tor.Repeat="e in elements">
+<trRun trRepeat="e in elements">
   {{e.Name | helloFilter}}
- </Tor.Run>
+ </trRun>
 ```
 **Output**
 ```
