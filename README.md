@@ -29,7 +29,7 @@ Compiler compiler = new Compiler();
 // 2. Add Elements to your Scope, the first parameter is key, second is value
 //      key:    the 'variable name' for the compiler
 //      value:  the value of the variable in this case the string "world"
-compiler.AddElementToScope("name", "world")
+compiler.AddKey("name", "world")
 
 //3. Call the compile Method and feed the template t get the result
 string result = compiler.CompileString("Hello {{name}}!");
@@ -39,11 +39,11 @@ string result = compiler.CompileString("Hello {{name}}!");
 For example **2.a** and **2.b** we are going to use the scope defined below
 ```c#
 var compiler = new Compiler()
-                .AddElementToScope("name", "Excel")
-                .AddElementToScope("width", 100)
-                .AddElementToScope("height", 500)
-                .AddElementToScope("bounds", new[] {10, 0, 10, 0})
-                .AddElementToScope("elements", new []
+                .AddKey("name", "Excel")
+                .AddKey("width", 100)
+                .AddKey("height", 500)
+                .AddKey("bounds", new[] {10, 0, 10, 0})
+                .AddKey("elements", new []
                 {
                     new { name = "John", age= 10 },
                     new { name = "Maria", age= 57 },
@@ -92,11 +92,11 @@ this is how the code should look
 ```c#
 var template = "...a string containing the template of above..."
 var compiled = new Compiler()
-                .AddElementToScope("name", "Excel")
-                .AddElementToScope("width", 100)
-                .AddElementToScope("height", 500)
-                .AddElementToScope("bounds", new[] {10, 0, 10, 0})
-                .AddElementToScope("elements", new []
+                .AddKey("name", "Excel")
+                .AddKey("width", 100)
+                .AddKey("height", 500)
+                .AddKey("bounds", new[] {10, 0, 10, 0})
+                .AddKey("elements", new []
                 {
                     new { name = "John", age= 10 },
                     new { name = "Maria", age= 57 },
@@ -331,7 +331,7 @@ Compiler.Filters.Add("helloFilter", input =>
 ```
 After you added your filter you can use it in your markup.
 ```c#
-var compiled = new Compiler().AddElementToScope("elements", new []
+var compiled = new Compiler().AddKey("elements", new []
                 {
                     new User {Name = "John", Age=13},
                     new User {Name = "Maria", Age=57},
@@ -412,7 +412,7 @@ Compiled
 </Document>
 ```
 #Supported Types:
-When you use `.AddElementToScope(Key, Value)`, Value is dynamic, that means that it will be evaluated at runtime, so 
+When you use `.AddKey(Key, Value)`, Value is dynamic, that means that it will be evaluated at runtime, so 
 It should support all kind of types, enums, classes, all elements and commands could be nested with no problem.
 #Performance
 from `<element ForEach="element in elements">{{element}}</element>` and elements equals to an array of 10,000 integers Core i5 @ 2.3 GHz took an average of 300 ms to compile in release.
