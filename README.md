@@ -22,7 +22,7 @@ Once it is installed you can use the `Compiler` class, you can find it at namesp
  3. Feed your `Template` and get the result
 
 # Example 1, Hello World
-```
+```c#
 // 1. Create a compiler class
 Compiler compiler = new Compiler(); 
 
@@ -37,7 +37,7 @@ string result = compiler.CompileString("Hello {{name}}!");
 ```
 #Example 2, multiple scope elements
 For example **2.a** and **2.b** we are going to use the scope defined below
-```
+```c#
 var compiler = new Compiler()
                 .AddElementToScope("name", "Excel")
                 .AddElementToScope("width", 100)
@@ -53,14 +53,14 @@ var compiler = new Compiler()
                 });
 ```
 After `Scope` is ready all you need to do is call the `Compile` method according to your needs
-```
+```c#
 compiler.Compile("Hello {{name}}") // a string
 compiler.CompileXml(@"c:/.../file.xml"); //a xml file
 compiler.CompileXml(new StringReader("<doc><.../></doc>"));//a xml string
 ```
 #2.a Compile it from a string template 
 **Template**
-```
+```xml
 Hello {{name}}, you are a document with a size of {{width}}x{{height}} and an 
 area of {{width*height}}
 
@@ -89,7 +89,7 @@ now here you can see a filtered list of classes
   -Susan, age 37
 ```
 this is how the code should look
-```
+```c#
 var template = "...a string containing the template of above..."
 var compiled = new Compiler()
                 .AddElementToScope("name", "Excel")
@@ -109,7 +109,7 @@ var compiled = new Compiler()
 ```
 #2.b from a Xml File
 **Template**
-```
+```xml
 <document>
   <name>my name is {{name}}</name>
   <width>{{width}}</width>
@@ -127,7 +127,7 @@ var compiled = new Compiler()
 </document>
 ```
 **Result**
-```
+```xml
 <document>
   <name>my name is Excel</name>
   <width>100</width>
@@ -164,7 +164,7 @@ The only difference from **2.a** is that now you need to call `CompileXml()` met
 
 # Example 3, multiple features
 Consider next Xml as template, and `numbers` is an array of integers containing only 2 elements (0, 1)
-```
+```xml
 <doc>
 <trRun trRepeat="a in numbers">
     <trRun trRepeat="b in numbers" >
@@ -179,7 +179,7 @@ Consider next Xml as template, and `numbers` is an array of integers containing 
 </doc>
 ```
 will compile as
-```
+```xml
 <doc>
 <element row="1" column="1">
           a) from a local scope variable $0.00, 0
@@ -231,7 +231,7 @@ Consider `numbers` an array of integers in the Scope
 `<MyElement trRepeat="number in numbers" myAttribute="{{number}}" />`
 
 **Result**
-```
+```xml
 <MyElement myAttribute="1" />
 <MyElement myAttribute="2" />
 <MyElement myAttribute="3" />
@@ -244,7 +244,7 @@ Each repeated element has some extra Scope items:
  * `$parent` 	parent scope. 
 
 **Input**
-```
+```xml
 <trRun trRepeat="a in numbers">
     <trRun trRepeat="b in numbers" >
 		    <element row="{{$parent.$index+1}}" column="{{$index+1}}">
@@ -257,7 +257,7 @@ Each repeated element has some extra Scope items:
   </trRun>
 ```
 **Result**
-```
+```xml
 <element row="1" column="1">
           a) from a local scope variable $0.00, 0
           b) from an array: 0
@@ -287,7 +287,7 @@ Each repeated element has some extra Scope items:
 `trRun` is useful when you need to run a command on a set of Xml elements or just when you need for example to write a string according to a condition. `trRun` is ignored when compiled.
 
 **Example 1** use it to run `trRepeater` on a group of elements
-```
+```xml
 <Document>
   <trRun trRepeat="number in numbers">
     <text1></text1>
@@ -302,7 +302,7 @@ Each repeated element has some extra Scope items:
 </Document>
 ```
 **Example2** Writing a string according to condition
-```
+```xml
 Hello I need a:
 <trRun trIf="user.age >= 18">
   beer
@@ -321,7 +321,7 @@ And you will get `$102.31`. **Tor** includes already the next filters:
 
 You can add as many filters as you need adding elements to `Filters` dictionary of the static `Compiler` class.
 **Example:**
-```
+```c#
 //consider that you can’t add a repeated element to a dictionary
 //so when you add a filter be sure that this code is only hit once
 Compiler.Filters.Add("helloFilter", input =>
@@ -330,7 +330,7 @@ Compiler.Filters.Add("helloFilter", input =>
             });
 ```
 After you added your filter you can use it in your markup.
-```
+```c#
 var compiled = new Compiler().AddElementToScope("elements", new []
                 {
                     new User {Name = "John", Age=13},
@@ -341,7 +341,7 @@ var compiled = new Compiler().AddElementToScope("elements", new []
                 }).CompileString();
 ```
 **Input**
-```
+```xml
 <trRun trRepeat="e in elements">
   {{e.Name | helloFilter}}
  </trRun>
@@ -364,7 +364,7 @@ Use filters whenever you need to change the output of a expression. another appl
 
 #Math and Logical Operators
 math operations are evaluated by Ncalc, basically it works with the same syntax used in C#. For more info go to https://ncalc.codeplex.com/
-```
+```xml
 <Document>
   <Math>
     2 + 2 = {{2+2}}, 2 x 2 = {{2*2}}, 2 / 2 = {{2/2}},
@@ -378,7 +378,7 @@ math operations are evaluated by Ncalc, basically it works with the same syntax 
 </Document>
 ```
 Compiled
-```
+```xml
 <Document>
   <Document>
   <Math>
@@ -396,7 +396,7 @@ Compiled
 #Dot Notation
 Dot notation is useful when you add classes to compiler Scope, in the next example we added an User class with a string property `name`, a string property `lastName` and a integer property `age`, you can add any type and nest as many classes as necessary.
 Input XML
-```
+```xml
 <Document>
   <Text>
     {{user.name}} {{user.lastName}}, age: {{user.age}}
@@ -404,7 +404,7 @@ Input XML
 </Document>
 ```
 Compiled
-```
+```xml
 <Document>
   <Text>
     Roger Martinez, age: 20
@@ -418,7 +418,7 @@ It should support all kind of types, enums, classes, all elements and commands c
 from `<element ForEach="element in elements">{{element}}</element>` and elements equals to an array of 10,000 integers Core i5 @ 2.3 GHz took an average of 300 ms to compile in release.
 
 Sometimes Xml files contains elements that you don’t need to compile. to improve performance compile only what you need.
-```
+```c#
 var onlyContet = compiler.CompileXml(new StringReader(SourceBox.Text), 
                  x => x.Children.First(y => y.Name == "content")); 
 ```
