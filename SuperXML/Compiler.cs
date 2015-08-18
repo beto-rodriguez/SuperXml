@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -42,9 +41,9 @@ namespace Templator
 
         static Compiler()
         {
-            RepeaterKey = "Tor.Repeat";
-            IfKey = "Tor.If";
-            TemplateKey = "Tor.Run";
+            RepeaterKey = "trRepeat";
+            IfKey = "trIf";
+            TemplateKey = "trRun";
             IsExpressionRegex = new Regex("(?<={{).*?(?=}})");
             ForEachRegex =
                 new Regex(@"^\s*([a-zA-Z_]+[\w]*)\s+in\s+(([a-zA-Z][\w]*(\.[a-zA-Z][\w]*)*)|\[(.+)(,\s*.+)*\])\s*$",
@@ -94,16 +93,9 @@ namespace Templator
             return this;
         }
 
-        public Compiler AddElementToScope(string key, dynamic value)
+        public Compiler AddKey(string key, dynamic value)
         {
-            if (Scope.ContainsKey(key))
-            {
-                Scope[key] = value;
-            }
-            else
-            {
-                Scope.Add(key, value);
-            }
+            Scope[key] = value;
             return this;
         }
 
@@ -291,7 +283,6 @@ namespace Templator
                 Attributes = new List<XmlAttribute>();
                 Children = new List<XmlElement>();
                 Type = type;
-                Scope = new Dictionary<string, dynamic>();
             }
 
             private BufferCommands Type { get; }
@@ -332,11 +323,21 @@ namespace Templator
                 try
                 {
                     var keys = propertyName.Split('.');
-                    var property = new PropertyAccess(keys[0]);
+                    var digTo = keys.Count(x => x == "$parent");
+                    var d = 0;
+                    var p = this;
 
-                    var scope = Scope;
+                    while (digTo > 0 && digTo + 1 > d)
+                    {
+                        p = p.Parent;
+                        d += p.Scope != null ? 1 : 0;
+                    }
+                    if (digTo > 0) keys = keys.Where(x => x != "$parent").ToArray();
+
+                    var property = new PropertyAccess(keys[0]);
+                    var scope = p.Scope;
                     var parent = this;
-                    while (!scope.ContainsKey(property.Name))
+                    while (scope == null || !scope.ContainsKey(property.Name))
                     {
                         parent = parent.Parent;
                         scope = parent.Scope;
@@ -364,7 +365,7 @@ namespace Templator
                     return false;
                 }
             }
-            private IEnumerable<Dictionary<string, dynamic>> Scopes()
+            private IEnumerable<Dictionary<string, dynamic>> Repeater()
             {
                 var repeaterAttribute = Attributes.FirstOrDefault(x => x.Name == RepeaterKey);
                 if (repeaterAttribute == null)
@@ -395,8 +396,7 @@ namespace Templator
                         [repeater] = item,
                         ["$index"] = i++,
                         ["$odd"] = !even,
-                        ["$even"] = even,
-                        ["$parent"] = Parent.Scope
+                        ["$even"] = even
                     };
                 }
             }
@@ -434,10 +434,9 @@ namespace Templator
                     case BufferCommands.NewElement:
                         var isTemplate = Name == TemplateKey;
                         var ns = Attributes.FirstOrDefault(x => x.Name == "xmlns");
-                        foreach (var scope in Scopes())
+                        foreach (var scope in Repeater())
                         {
-                            Scope = scope ?? Scope;
-
+                            Scope = scope;
                             if (!If()) continue;
                             
                             if (!isTemplate)

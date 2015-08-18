@@ -1,20 +1,20 @@
 ﻿Hello {{name}}, you are a document with a size of {{width}}x{{height}} and an area of {{width*height}}
 
 now here is a list with your bounds:
-  <Tor.Run Tor.Repeat="b in bounds">-value {{$index}}: {{b}}
-  </Tor.Run>
+  <trRun trRepeat="b in bounds">-value {{$index}}: {{b}}
+  </trRun>
 
 now here you can see a filtered list of clases
-  <Tor.Run Tor.Repeat="e in elements" Tor.If="e.Age > 25">-{{e.Name}}, age {{e.Age}}
-  </Tor.Run>
+  <trRun trRepeat="e in elements" trIf="e.Age > 25">-{{e.Name}}, age {{e.Age}}
+  </trRun>
 
-  <Tor.Run Tor.Repeat="a in numbers">
-    <Tor.Run Tor.Repeat="b in numbers" >
-		<element row="{{$parent.$index+1}}" column="{{$index+1}}">
-			a) from a local scope variable {{a | currency}}, {{b}}
+  <trRun trRepeat="row in numbers">
+    <trRun trRepeat="col in numbers" >
+		<element row="{{row}}" column="{{col}}">
+			a) from a local scope variable {{row | currency}}, {{col}}
 			b) from an array: {{numbers[0]}}
 			c) from parent scope: {{$parent.$index}}
 			d) is it even? {{if($even, 'yes', 'nope')}}
 		</element>      
-    </Tor.Run>
-  </Tor.Run>
+    </trRun>
+  </trRun>

@@ -33,11 +33,11 @@ namespace Test
         private void CompileClick(object sender, RoutedEventArgs e)
         {
             var compiler = new Compiler()
-                .AddElementToScope("name", "Excel")
-                .AddElementToScope("width", 100)
-                .AddElementToScope("height", 500)
-                .AddElementToScope("bounds", new[] {10, 0, 10, 0})
-                .AddElementToScope("elements", new []
+                .AddKey("name", "Excel")
+                .AddKey("width", 100)
+                .AddKey("height", 500)
+                .AddKey("bounds", new[] {10, 0, 10, 0})
+                .AddKey("elements", new []
                 {
                     new User {Name = "John", Age=13},
                     new User {Name = "Maria", Age=57},
@@ -45,7 +45,7 @@ namespace Test
                     new User {Name = "Edit", Age=82},
                     new User {Name = "Susan", Age=37}
                 })
-                .AddElementToScope("numbers", _generateInts(2));
+                .AddKey("numbers", _generateInts(10000));
 
             
 
