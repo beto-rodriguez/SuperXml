@@ -430,3 +430,107 @@ When a property is not found in the Compiler Scope, Compiler will let you know w
 ```
 When a property is not found the impact in performance is huge!
 ```
+
+#Finally
+here it is a production example, that I use to print Esc Pos Tickets in a 'readable' way
+<EscPos FixedWidth="{{width}}" SmallWidth="{{smallWidth}}">
+    <Row trIf="Ticket.LocalData.CompanyName.Length > 0">
+      <Column>
+        <TextBlock HorizontalAlingment="Center">
+          {{Ticket.LocalData.CompanyName}}
+        </TextBlock>
+      </Column>
+    </Row>
+    <Image Alt="X" Source="{{Ticket.LocalData.ImageSource}}" MaxHeigth="200" MaxWidth="350"/>
+    <Row Modifiers="Small">
+      <Column>
+        <TextBlock>{{Ticket.LocalData.Header}}</TextBlock>
+      </Column>
+    </Row>
+    <Row Modifiers="Small">
+      <Column>
+        <TextBlock>
+          <trRun trIf="Ticket.Type == 'Sell'">Nota de Venta</trRun>
+          <trRun trIf="Ticket.Type == 'Send'">Envío de Inventario</trRun>
+          <trRun trIf="Ticket.Type == 'Save'">Apartado</trRun>
+          <trRun trIf="Ticket.Type == 'Count'">Diferencia de Inventario</trRun>
+        </TextBlock>
+      </Column>
+    </Row>
+    <Row Modifiers="Small">
+      <Column FixedWidth="6">
+        <TextBlock>Fecha:</TextBlock>
+      </Column>
+      <Column FixedWidth="{{smallWidth - 6}}">
+        <TextBlock HorizontalAlingment="Right">{{Ticket.Date}}</TextBlock>
+      </Column>
+    </Row>
+    <Row Modifiers="Small" trIf="Ticket.HasOrigin">
+      <Column FixedWidth="7">
+        <TextBlock>Origen:</TextBlock>
+      </Column>
+      <Column FixedWidth="{{smallWidth - 7}}">
+        <TextBlock HorizonalAlingment="Right">{{Ticket.Origin}}</TextBlock>
+      </Column>
+    </Row>
+    <Row Modifiers="Small" trIf="Ticket.HasDestiny">
+      <Column FixedWidth="8" >
+        <TextBlock>Destino:</TextBlock>
+      </Column>
+      <Column FixedWidth="{{smallWidth - 8}}">
+        <TextBlock HorizonalAlingment="Right">{{Ticket.Destiny}}</TextBlock>
+      </Column>
+    </Row>
+    <FeedLine/>
+    <Row Modifiers="Bold Underline">
+        <Column Width="8"><TextBlock HorizontalAlingment="Center">Q</TextBlock></Column>
+        <Column Width="25"><TextBlock HorizontalAlingment="Center">Modelo</TextBlock></Column>
+        <Column Width="32"><TextBlock HorizontalAlingment="Center">PU</TextBlock></Column>
+        <Column Width="35"><TextBlock HorizontalAlingment="Center">Total</TextBlock></Column>
+      </Row>
+    <trRun trRepeat="item in Ticket.Items">
+      <Row>
+        <Column Width="8"><TextBlock HorizontalAlingment="Center">{{item.Q}}</TextBlock></Column>
+        <Column Width="25"><TextBlock HorizontalAlingment="Center">{{item.Style}}</TextBlock></Column>
+        <Column Width="32"><TextBlock HorizontalAlingment="Right">{{item.UnitValue}}</TextBlock></Column>
+        <Column Width="35"><TextBlock HorizontalAlingment="Right">{{item.Total}}</TextBlock></Column>
+      </Row>
+      <Row Modifiers="{{if(item.DetailsCount == 0, 'Small Underline', 'Small')}}">
+        <Column>
+          <TextBlock MaxWidth="{{smallWidth}}">
+            {{item.Text}}
+          </TextBlock>
+        </Column>
+      </Row>
+      <trRun trRepeat="row in item.Details">
+        <Row Modifiers="{{if($index == item.DetailsCount-1, 'Small Underline', 'Small')}}" >
+          <Column trRepeat="col in row" FixedWidth="{{if($index == 0, 10, 4)}}">
+            <TextBlock HorizontalAlingment="{{if($index == 0, 'Right', 'Center')}}" 
+                       MaxWidth="{{if($index == 0, 6, 4)}}">
+              {{col}}
+            </TextBlock>
+          </Column>
+        </Row>
+      </trRun>
+    </trRun>
+    <FeedLine/>
+    <Row>
+      <Column><TextBlock HorizontalAlingment="Right">{{Ticket.Total | currency}}</TextBlock></Column>
+    </Row>
+    <Row Modifiers="Small">
+      <Column><TextBlock>{{Ticket.Total | twic}}</TextBlock></Column>
+    </Row>
+    <FeedLine/>
+    <Row Modifiers="Small">
+      <Column>
+        <TextBlock>
+          <trRun trIf="Ticket.Type=='Sell'">{{Ticket.TicketConfig.SalingFooter}}</trRun>
+          <trRun trIf="Ticket.Type=='Send'">{{Ticket.TicketConfig.SendingFooter}}</trRun>
+          <trRun trIf="Ticket.Type=='Save'">{{Ticket.TicketConfig.SavesFooter}}</trRun>
+          <trRun trIf="Ticket.Type=='Count'">{{Ticket.TicketConfig.CountingFooter}}</trRun>
+        </TextBlock>
+    </Column>
+    </Row>
+    <FeedLine/>
+    <Code39 Width="2" Height="50" Text="{{Ticket.Number}}"/>
+  </EscPos>
