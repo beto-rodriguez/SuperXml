@@ -338,7 +338,8 @@ var compiled = new Compiler().AddKey("elements", new []
                     new User {Name = "Mark", Age=23},
                     new User {Name = "Edit", Age=82},
                     new User {Name = "Susan", Age=37}
-                }).CompileString();
+                }).CompileString(
+                	"<trRun trRepeat="e in elements">{{e.Name | helloFilter}}</trRun>");
 ```
 **Input**
 ```xml
