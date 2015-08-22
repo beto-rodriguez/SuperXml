@@ -433,6 +433,7 @@ When a property is not found the impact in performance is huge!
 
 #Finally
 here it is a production example, that I use to print Esc Pos Tickets in a 'readable' way
+```xml
 <EscPos FixedWidth="{{width}}" SmallWidth="{{smallWidth}}">
     <Row trIf="Ticket.LocalData.CompanyName.Length > 0">
       <Column>
@@ -534,3 +535,4 @@ here it is a production example, that I use to print Esc Pos Tickets in a 'reada
     <FeedLine/>
     <Code39 Width="2" Height="50" Text="{{Ticket.Number}}"/>
   </EscPos>
+  ```
