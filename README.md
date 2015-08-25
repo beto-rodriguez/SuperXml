@@ -1,6 +1,6 @@
-# Templator
+# SuperXml
 
-Templator is just a light weight and easy to use template engine library, useful to create string, Xml and Html Templates(working on it).
+SuperXml is just a light weight and easy to use template engine library, useful to create string and Xml templates.
 
 Why another template engine?
   * Multi-type support.
@@ -13,9 +13,9 @@ Why another template engine?
 #Install
 From visual studio go to `Tools` -> `Nuget Package Manager` -> `Package Manager Console` then in the `Package Manager console` write the next command.
 ```
-Install-Package Tor
+Install-Package SuperXml
 ```
-Once it is installed you can use the `Compiler` class, you can find it at namespace `Templator`.
+Once it is installed you can use the `Compiler` class, you can find it at namespace `SuperXml`.
 #How to use it?
  1. Create a `Compiler` class
  2. Add as many elements to the `Scope` as you need
@@ -54,7 +54,7 @@ var compiler = new Compiler()
 ```
 After `Scope` is ready all you need to do is call the `Compile` method according to your needs
 ```c#
-compiler.Compile("Hello {{name}}") // a string
+compiler.CompileString("Hello {{name}}") // a string
 compiler.CompileXml(@"c:/.../file.xml"); //a xml file
 compiler.CompileXml(new StringReader("<doc><.../></doc>"));//a xml string
 ```
@@ -65,12 +65,12 @@ Hello {{name}}, you are a document with a size of {{width}}x{{height}} and an
 area of {{width*height}}
 
 now here is a list with your bounds:
-  <trRun TrRepeat="b in bounds">-value {{$index}}: {{b}}
-  </trRun>
+  <sxRun sxRepeat="b in bounds">-value {{$index}}: {{b}}
+  </sxRun>
 
 now here you can see a filtered list of classes
-  <trRun trRepeat="e in elements" trIf="e.age > 25">-{{e.name}}, age {{e.age}}
-  </trRun>
+  <sxRun sxRepeat="e in elements" sxIf="e.age > 25">-{{e.name}}, age {{e.age}}
+  </sxRun>
 ```
 **Result:**
 ```
@@ -116,10 +116,10 @@ var compiled = new Compiler()
   <height>{{height}}</height>
   <area>{{width*height}}</area>
   <padding>
-    <bound trRepeat="bound in bounds">{{bound}}</bound>
+    <bound sxRepeat="bound in bounds">{{bound}}</bound>
   </padding>
   <content>
-    <element ForEach="element in elements" If="element.age > 25">
+    <element sxRepeat="element in elements" sxIf="element.age > 25">
       <name>{{element.name}}</name>
       <age>{{element.age}}</age>
     </element>
@@ -166,16 +166,16 @@ The only difference from **2.a** is that now you need to call `CompileXml()` met
 Consider next Xml as template, and `numbers` is an array of integers containing only 2 elements (0, 1)
 ```xml
 <doc>
-<trRun trRepeat="a in numbers">
-    <trRun trRepeat="b in numbers" >
+<sxRun sxRepeat="a in numbers">
+    <sxRun sxRepeat="b in numbers" >
 		    <element row="{{$parent.$index+1}}" column="{{$index+1}}">
 			     a) from a local scope variable {{a | currency}}, {{b}}
 			     b) from an array: {{numbers[0]}}
 			     c) from parent scope: {{$parent.$index}}
 			     d) is it even? {{if($even, 'yes', 'nope')}}
 		   </element>      
-    </trRun>
-  </trRun>
+    </sxRun>
+  </sxRun>
 </doc>
 ```
 will compile as
@@ -209,26 +209,26 @@ will compile as
  ```
 #HTML
 Coming Soon...
-#trIf Command
+#If Command
 Evaluates if the element should be included according to a condition. A condition can include everything supported by ncalc (most of common things). **Examples**:
-* `<MyElement trIf="10 > 6"/>` numeric.
-* `<MyElement trIf="aValueFromScope == 'visible'"/>` string and from scope
-* `<MyElement trIf="10 > h && aValueFromScope == 'visible'"/>` another example
+* `<MyElement sxIf="10 > 6"/>` numeric.
+* `<MyElement sxIf="aValueFromScope == 'visible'"/>` string and from scope
+* `<MyElement sxIf="10 > h && aValueFromScope == 'visible'"/>` another example
 
-`trIf ` is useful when you need to include or ignore a specific element but what happens if you need for example to decide an Xml attribute according to a condition?
+`sxIf ` is useful when you need to include or ignore a specific element but what happens if you need for example to decide an Xml attribute according to a condition?
  
 In that case you should use NCalc `if` function example: 
 
 `<Element type="{{if(10 == 5, '10 is equals to 5', '10 is diferent to 5')}}"></Element>`
 
-#trRepeat Command
+#Repeat Command
 Repeats the element the same number of times as items in the array.
 
 **Example**
 
 Consider `numbers` an array of integers in the Scope
 
-`<MyElement trRepeat="number in numbers" myAttribute="{{number}}" />`
+`<MyElement sxRepeat="number in numbers" myAttribute="{{number}}" />`
 
 **Result**
 ```xml
@@ -245,16 +245,16 @@ Each repeated element has some extra Scope items:
 
 **Input**
 ```xml
-<trRun trRepeat="a in numbers">
-    <trRun trRepeat="b in numbers" >
+<sxRun sxRepeat="a in numbers">
+    <sxRun sxRepeat="b in numbers" >
 		    <element row="{{$parent.$index+1}}" column="{{$index+1}}">
 			     a) from a local scope variable {{a | currency}}, {{b}}
 			     b) from an array: {{numbers[0]}}
 			     c) from parent scope: {{$parent.$index}}
 			     d) is it even? {{if($even, 'yes', 'nope')}}
 		   </element>      
-    </trRun>
-  </trRun>
+    </sxRun>
+  </sxRun>
 ```
 **Result**
 ```xml
@@ -283,33 +283,33 @@ Each repeated element has some extra Scope items:
           d) is it even? nope
   </element>
  ```
-#trRun Command
-`trRun` is useful when you need to run a command on a set of Xml elements or just when you need for example to write a string according to a condition. `trRun` is ignored when compiled.
+#Run Command
+`sxRun` is useful when you need to run a command on a set of Xml elements or just when you need for example to write a string according to a condition. `sxRun` is ignored when compiled.
 
-**Example 1** use it to run `trRepeater` on a group of elements
+**Example 1** use it to run `sxRepeater` on a group of elements
 ```xml
 <Document>
-  <trRun trRepeat="number in numbers">
+  <sxRun sxRepeat="number in numbers">
     <text1></text1>
     <text2></text2>
     <text3></text3>
-  </trRun>
-  <trRun trIf="8 > 7">
+  </sxRun>
+  <sxRun sxIf="8 > 7">
     <text1></text1>
     <text2></text2>
     <text3></text3>
-  </trRun>
+  </sxRun>
 </Document>
 ```
 **Example2** Writing a string according to condition
 ```xml
 Hello I need a:
-<trRun trIf="user.age >= 18">
+<sxRun sxIf="user.age >= 18">
   beer
-</trRun>
-<trRun trIf="user.age < 18">
+</sxRun>
+<sxRun sxIf="user.age < 18">
   juice
-</trRun>
+</sxRun>
 ```
 #Filters
 Filters is an easy way to display an expression in a custom format. for example when you have a decimal value `102.312` and you need it to display it as currency, all you need to do is use an expression as 
@@ -339,13 +339,13 @@ var compiled = new Compiler().AddKey("elements", new []
                     new User {Name = "Edit", Age=82},
                     new User {Name = "Susan", Age=37}
                 }).CompileString(
-                	"<trRun trRepeat="e in elements">{{e.Name | helloFilter}}</trRun>");
+                	"<sxRun sxRepeat="e in elements">{{e.Name | helloFilter}}</sxRun>");
 ```
 **Input**
 ```xml
-<trRun trRepeat="e in elements">
+<sxRun sxRepeat="e in elements">
   {{e.Name | helloFilter}}
- </trRun>
+ </sxRun>
 ```
 **Output**
 ```
@@ -431,109 +431,3 @@ When a property is not found in the Compiler Scope, Compiler will let you know w
 ```
 When a property is not found the impact in performance is huge!
 ```
-
-#Finally
-here it is a production example, that I use to print Esc Pos Tickets in a 'readable' way
-```xml
-<EscPos FixedWidth="{{width}}" SmallWidth="{{smallWidth}}">
-    <Row trIf="Ticket.LocalData.CompanyName.Length > 0">
-      <Column>
-        <TextBlock HorizontalAlingment="Center">
-          {{Ticket.LocalData.CompanyName}}
-        </TextBlock>
-      </Column>
-    </Row>
-    <Image Alt="X" Source="{{Ticket.LocalData.ImageSource}}" MaxHeigth="200" MaxWidth="350"/>
-    <Row Modifiers="Small">
-      <Column>
-        <TextBlock>{{Ticket.LocalData.Header}}</TextBlock>
-      </Column>
-    </Row>
-    <Row Modifiers="Small">
-      <Column>
-        <TextBlock>
-          <trRun trIf="Ticket.Type == 'Sell'">Nota de Venta</trRun>
-          <trRun trIf="Ticket.Type == 'Send'">Envío de Inventario</trRun>
-          <trRun trIf="Ticket.Type == 'Save'">Apartado</trRun>
-          <trRun trIf="Ticket.Type == 'Count'">Diferencia de Inventario</trRun>
-        </TextBlock>
-      </Column>
-    </Row>
-    <Row Modifiers="Small">
-      <Column FixedWidth="6">
-        <TextBlock>Fecha:</TextBlock>
-      </Column>
-      <Column FixedWidth="{{smallWidth - 6}}">
-        <TextBlock HorizontalAlingment="Right">{{Ticket.Date}}</TextBlock>
-      </Column>
-    </Row>
-    <Row Modifiers="Small" trIf="Ticket.HasOrigin">
-      <Column FixedWidth="7">
-        <TextBlock>Origen:</TextBlock>
-      </Column>
-      <Column FixedWidth="{{smallWidth - 7}}">
-        <TextBlock HorizonalAlingment="Right">{{Ticket.Origin}}</TextBlock>
-      </Column>
-    </Row>
-    <Row Modifiers="Small" trIf="Ticket.HasDestiny">
-      <Column FixedWidth="8" >
-        <TextBlock>Destino:</TextBlock>
-      </Column>
-      <Column FixedWidth="{{smallWidth - 8}}">
-        <TextBlock HorizonalAlingment="Right">{{Ticket.Destiny}}</TextBlock>
-      </Column>
-    </Row>
-    <FeedLine/>
-    <Row Modifiers="Bold Underline">
-        <Column Width="8"><TextBlock HorizontalAlingment="Center">Q</TextBlock></Column>
-        <Column Width="25"><TextBlock HorizontalAlingment="Center">Modelo</TextBlock></Column>
-        <Column Width="32"><TextBlock HorizontalAlingment="Center">PU</TextBlock></Column>
-        <Column Width="35"><TextBlock HorizontalAlingment="Center">Total</TextBlock></Column>
-      </Row>
-    <trRun trRepeat="item in Ticket.Items">
-      <Row>
-        <Column Width="8"><TextBlock HorizontalAlingment="Center">{{item.Q}}</TextBlock></Column>
-        <Column Width="25"><TextBlock HorizontalAlingment="Center">{{item.Style}}</TextBlock></Column>
-        <Column Width="32"><TextBlock HorizontalAlingment="Right">{{item.UnitValue}}</TextBlock></Column>
-        <Column Width="35"><TextBlock HorizontalAlingment="Right">{{item.Total}}</TextBlock></Column>
-      </Row>
-      <Row Modifiers="{{if(item.DetailsCount == 0, 'Small Underline', 'Small')}}">
-        <Column>
-          <TextBlock MaxWidth="{{smallWidth}}">
-            {{item.Text}}
-          </TextBlock>
-        </Column>
-      </Row>
-      <trRun trRepeat="row in item.Details">
-        <Row Modifiers="{{if($index == item.DetailsCount-1, 'Small Underline', 'Small')}}" >
-          <Column trRepeat="col in row" FixedWidth="{{if($index == 0, 10, 4)}}">
-            <TextBlock HorizontalAlingment="{{if($index == 0, 'Right', 'Center')}}" 
-                       MaxWidth="{{if($index == 0, 6, 4)}}">
-              {{col}}
-            </TextBlock>
-          </Column>
-        </Row>
-      </trRun>
-    </trRun>
-    <FeedLine/>
-    <Row>
-      <Column><TextBlock HorizontalAlingment="Right">{{Ticket.Total | currency}}</TextBlock></Column>
-    </Row>
-    <Row Modifiers="Small">
-      <Column><TextBlock>{{Ticket.Total | twic}}</TextBlock></Column>
-    </Row>
-    <FeedLine/>
-    <Row Modifiers="Small">
-      <Column>
-        <TextBlock>
-          <trRun trIf="Ticket.Type=='Sell'">{{Ticket.TicketConfig.SalingFooter}}</trRun>
-          <trRun trIf="Ticket.Type=='Send'">{{Ticket.TicketConfig.SendingFooter}}</trRun>
-          <trRun trIf="Ticket.Type=='Save'">{{Ticket.TicketConfig.SavesFooter}}</trRun>
-          <trRun trIf="Ticket.Type=='Count'">{{Ticket.TicketConfig.CountingFooter}}</trRun>
-        </TextBlock>
-    </Column>
-    </Row>
-    <FeedLine/>
-    <Code39 Width="2" Height="50" Text="{{Ticket.Number}}"/>
-  </EscPos>
-  ```
