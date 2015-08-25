@@ -318,7 +318,7 @@ Filters is an easy way to display an expression in a custom format. for example 
 
 `{{102.312 | currency}}`
 
-And you will get `$102.31`. **Tor** includes already the next filters:
+And you will get `$102.31`. **&lt;SuperXml /&gt;** includes already the next filters:
   * `currency`: it takes a numeric value and returns `input.ToString("C")`.
 
 You can add as many filters as you need adding elements to `Filters` dictionary of the static `Compiler` class.
