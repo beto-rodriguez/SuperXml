@@ -1,6 +1,6 @@
-# Templator (Tor)
+# SuperXml
 
-Templator (Tor) is just a light weight and easy to use template engine library, useful to create string, Xml and Html Templates.
+SuperXml is just a light weight and easy to use template engine library, useful to create string and Xml templates.
 
 Why another template engine?
   * Multi-type support.
@@ -8,28 +8,28 @@ Why another template engine?
   * **AngularJs (1.*)**-like markup, if you are familiar with it you’re are familiar with this library.
   * Support for nested elements.
   * Expression filters, for example make an integer `24` compile like `$24.00`.
-  * Open source, do whatever you need with this code, improve it (please), remove features, for commercial and no commercial purposes. [License](https://github.com/beto-rodriguez/Templator/blob/master/LICENSE.txt).
+  * Open source, do whatever you need with this code, improve it (please), remove features, for commercial and no commercial purposes. [License here](https://github.com/beto-rodriguez/Templator/blob/master/LICENSE.txt).
 
 #Install
 From visual studio go to `Tools` -> `Nuget Package Manager` -> `Package Manager Console` then in the `Package Manager console` write the next command.
 ```
-Install-Package Tor
+Install-Package SuperXml
 ```
-Once it is installed you can use the `Compiler` class, you can find it at namespace `Templator`.
+Once it is installed you can use the `Compiler` class, you can find it at namespace `SuperXml`.
 #How to use it?
  1. Create a `Compiler` class
  2. Add as many elements to the `Scope` as you need
  3. Feed your `Template` and get the result
 
 # Example 1, Hello World
-```
+```c#
 // 1. Create a compiler class
 Compiler compiler = new Compiler(); 
 
 // 2. Add Elements to your Scope, the first parameter is key, second is value
 //      key:    the 'variable name' for the compiler
 //      value:  the value of the variable in this case the string "world"
-compiler.AddElementToScope("name", "world")
+compiler.AddKey("name", "world")
 
 //3. Call the compile Method and feed the template t get the result
 string result = compiler.CompileString("Hello {{name}}!");
@@ -37,13 +37,13 @@ string result = compiler.CompileString("Hello {{name}}!");
 ```
 #Example 2, multiple scope elements
 For example **2.a** and **2.b** we are going to use the scope defined below
-```
+```c#
 var compiler = new Compiler()
-                .AddElementToScope("name", "Excel")
-                .AddElementToScope("width", 100)
-                .AddElementToScope("height", 500)
-                .AddElementToScope("bounds", new[] {10, 0, 10, 0})
-                .AddElementToScope("elements", new []
+                .AddKey("name", "Excel")
+                .AddKey("width", 100)
+                .AddKey("height", 500)
+                .AddKey("bounds", new[] {10, 0, 10, 0})
+                .AddKey("elements", new []
                 {
                     new { name = "John", age= 10 },
                     new { name = "Maria", age= 57 },
@@ -53,24 +53,24 @@ var compiler = new Compiler()
                 });
 ```
 After `Scope` is ready all you need to do is call the `Compile` method according to your needs
-```
-compiler.Compile("Hello {{name}}") // a string
+```c#
+compiler.CompileString("Hello {{name}}") // a string
 compiler.CompileXml(@"c:/.../file.xml"); //a xml file
 compiler.CompileXml(new StringReader("<doc><.../></doc>"));//a xml string
 ```
 #2.a Compile it from a string template 
 **Template**
-```
+```xml
 Hello {{name}}, you are a document with a size of {{width}}x{{height}} and an 
 area of {{width*height}}
 
 now here is a list with your bounds:
-  <Tor.Run Tor.Repeat="b in bounds">-value {{$index}}: {{b}}
-  </Tor.Run>
+  <sxRun sxRepeat="b in bounds">-value {{$index}}: {{b}}
+  </sxRun>
 
 now here you can see a filtered list of classes
-  <Tor.Run Tor.Repeat="e in elements" Tor.If="e.age > 25">-{{e.name}}, age {{e.age}}
-  </Tor.Run>
+  <sxRun sxRepeat="e in elements" sxIf="e.age > 25">-{{e.name}}, age {{e.age}}
+  </sxRun>
 ```
 **Result:**
 ```
@@ -89,14 +89,14 @@ now here you can see a filtered list of classes
   -Susan, age 37
 ```
 this is how the code should look
-```
+```c#
 var template = "...a string containing the template of above..."
 var compiled = new Compiler()
-                .AddElementToScope("name", "Excel")
-                .AddElementToScope("width", 100)
-                .AddElementToScope("height", 500)
-                .AddElementToScope("bounds", new[] {10, 0, 10, 0})
-                .AddElementToScope("elements", new []
+                .AddKey("name", "Excel")
+                .AddKey("width", 100)
+                .AddKey("height", 500)
+                .AddKey("bounds", new[] {10, 0, 10, 0})
+                .AddKey("elements", new []
                 {
                     new { name = "John", age= 10 },
                     new { name = "Maria", age= 57 },
@@ -109,17 +109,17 @@ var compiled = new Compiler()
 ```
 #2.b from a Xml File
 **Template**
-```
+```xml
 <document>
   <name>my name is {{name}}</name>
   <width>{{width}}</width>
   <height>{{height}}</height>
   <area>{{width*height}}</area>
   <padding>
-    <bound Tor.Repeat="bound in bounds">{{bound}}</bound>
+    <bound sxRepeat="bound in bounds">{{bound}}</bound>
   </padding>
   <content>
-    <element ForEach="element in elements" If="element.age > 25">
+    <element sxRepeat="element in elements" sxIf="element.age > 25">
       <name>{{element.name}}</name>
       <age>{{element.age}}</age>
     </element>
@@ -127,7 +127,7 @@ var compiled = new Compiler()
 </document>
 ```
 **Result**
-```
+```xml
 <document>
   <name>my name is Excel</name>
   <width>100</width>
@@ -164,22 +164,22 @@ The only difference from **2.a** is that now you need to call `CompileXml()` met
 
 # Example 3, multiple features
 Consider next Xml as template, and `numbers` is an array of integers containing only 2 elements (0, 1)
-```
+```xml
 <doc>
-<Tor.Run Tor.Repeat="a in numbers">
-    <Tor.Run Tor.Repeat="b in numbers" >
+<sxRun sxRepeat="a in numbers">
+    <sxRun sxRepeat="b in numbers" >
 		    <element row="{{$parent.$index+1}}" column="{{$index+1}}">
 			     a) from a local scope variable {{a | currency}}, {{b}}
 			     b) from an array: {{numbers[0]}}
 			     c) from parent scope: {{$parent.$index}}
 			     d) is it even? {{if($even, 'yes', 'nope')}}
 		   </element>      
-    </Tor.Run>
-  </Tor.Run>
+    </sxRun>
+  </sxRun>
 </doc>
 ```
 will compile as
-```
+```xml
 <doc>
 <element row="1" column="1">
           a) from a local scope variable $0.00, 0
@@ -209,29 +209,29 @@ will compile as
  ```
 #HTML
 Coming Soon...
-#Tor.If Command
+#If Command
 Evaluates if the element should be included according to a condition. A condition can include everything supported by ncalc (most of common things). **Examples**:
-* `<MyElement Tor.If="10 > 6"/>` numeric.
-* `<MyElement Tor.If="aValueFromScope == 'visible'"/>` string and from scope
-* `<MyElement Tor.If="10 > h && aValueFromScope == 'visible'"/>` another example
+* `<MyElement sxIf="10 > 6"/>` numeric.
+* `<MyElement sxIf="aValueFromScope == 'visible'"/>` string and from scope
+* `<MyElement sxIf="10 > h && aValueFromScope == 'visible'"/>` another example
 
-`Tor.If ` is useful when you need to include or ignore a specific element but what happens if you need for example to decide an Xml attribute according to a condition?
+`sxIf ` is useful when you need to include or ignore a specific element but what happens if you need for example to decide an Xml attribute according to a condition?
  
 In that case you should use NCalc `if` function example: 
 
 `<Element type="{{if(10 == 5, '10 is equals to 5', '10 is diferent to 5')}}"></Element>`
 
-#Tor.Repeat Command
+#Repeat Command
 Repeats the element the same number of times as items in the array.
 
 **Example**
 
 Consider `numbers` an array of integers in the Scope
 
-`<MyElement Tor.Repeat="number in numbers" myAttribute="{{number}}" />`
+`<MyElement sxRepeat="number in numbers" myAttribute="{{number}}" />`
 
 **Result**
-```
+```xml
 <MyElement myAttribute="1" />
 <MyElement myAttribute="2" />
 <MyElement myAttribute="3" />
@@ -244,20 +244,20 @@ Each repeated element has some extra Scope items:
  * `$parent` 	parent scope. 
 
 **Input**
-```
-<Tor.Run Tor.Repeat="a in numbers">
-    <Tor.Run Tor.Repeat="b in numbers" >
+```xml
+<sxRun sxRepeat="a in numbers">
+    <sxRun sxRepeat="b in numbers" >
 		    <element row="{{$parent.$index+1}}" column="{{$index+1}}">
 			     a) from a local scope variable {{a | currency}}, {{b}}
 			     b) from an array: {{numbers[0]}}
 			     c) from parent scope: {{$parent.$index}}
 			     d) is it even? {{if($even, 'yes', 'nope')}}
 		   </element>      
-    </Tor.Run>
-  </Tor.Run>
+    </sxRun>
+  </sxRun>
 ```
 **Result**
-```
+```xml
 <element row="1" column="1">
           a) from a local scope variable $0.00, 0
           b) from an array: 0
@@ -283,27 +283,33 @@ Each repeated element has some extra Scope items:
           d) is it even? nope
   </element>
  ```
-#Tor.Run Command
-`Tor.Run` is useful when you need to run a command on a set of Xml elements or just when you need for example to write a string according to a condition. `Tor.Run` is ignored when compiled.
+#Run Command
+`sxRun` is useful when you need to run a command on a set of Xml elements or just when you need for example to write a string according to a condition. `sxRun` is ignored when compiled.
 
-**Example 1** use it to run `Tor.Repeater` on a group of elements
-```
+**Example 1** use it to run `sxRepeater` on a group of elements
+```xml
 <Document>
-  <Tor.Run Tor.Repeat="number in numbers">
+  <sxRun sxRepeat="number in numbers">
     <text1></text1>
     <text2></text2>
     <text3></text3>
-  </Tor.Run>
-  <Tor.Run Tor.If="8 > 7">
+  </sxRun>
+  <sxRun sxIf="8 > 7">
     <text1></text1>
     <text2></text2>
     <text3></text3>
-  </Tor.Run>
+  </sxRun>
 </Document>
 ```
 **Example2** Writing a string according to condition
-```
-Hello I need a <Tor.Run If="user.age >= 18">beer</Tor.Run><Tor.Run If="user.age < 18">juice</Tor.Run>
+```xml
+Hello I need a:
+<sxRun sxIf="user.age >= 18">
+  beer
+</sxRun>
+<sxRun sxIf="user.age < 18">
+  juice
+</sxRun>
 ```
 #Filters
 Filters is an easy way to display an expression in a custom format. for example when you have a decimal value `102.312` and you need it to display it as currency, all you need to do is use an expression as 
@@ -315,7 +321,7 @@ And you will get `$102.31`. **Tor** includes already the next filters:
 
 You can add as many filters as you need adding elements to `Filters` dictionary of the static `Compiler` class.
 **Example:**
-```
+```c#
 //consider that you can’t add a repeated element to a dictionary
 //so when you add a filter be sure that this code is only hit once
 Compiler.Filters.Add("helloFilter", input =>
@@ -324,21 +330,22 @@ Compiler.Filters.Add("helloFilter", input =>
             });
 ```
 After you added your filter you can use it in your markup.
-```
-var compiled = new Compiler().AddElementToScope("elements", new []
+```c#
+var compiled = new Compiler().AddKey("elements", new []
                 {
                     new User {Name = "John", Age=13},
                     new User {Name = "Maria", Age=57},
                     new User {Name = "Mark", Age=23},
                     new User {Name = "Edit", Age=82},
                     new User {Name = "Susan", Age=37}
-                }).CompileString();
+                }).CompileString(
+                	"<sxRun sxRepeat="e in elements">{{e.Name | helloFilter}}</sxRun>");
 ```
 **Input**
-```
-<Tor.Run Tor.Repeat="e in elements">
+```xml
+<sxRun sxRepeat="e in elements">
   {{e.Name | helloFilter}}
- </Tor.Run>
+ </sxRun>
 ```
 **Output**
 ```
@@ -358,7 +365,7 @@ Use filters whenever you need to change the output of a expression. another appl
 
 #Math and Logical Operators
 math operations are evaluated by Ncalc, basically it works with the same syntax used in C#. For more info go to https://ncalc.codeplex.com/
-```
+```xml
 <Document>
   <Math>
     2 + 2 = {{2+2}}, 2 x 2 = {{2*2}}, 2 / 2 = {{2/2}},
@@ -372,7 +379,7 @@ math operations are evaluated by Ncalc, basically it works with the same syntax 
 </Document>
 ```
 Compiled
-```
+```xml
 <Document>
   <Document>
   <Math>
@@ -390,7 +397,7 @@ Compiled
 #Dot Notation
 Dot notation is useful when you add classes to compiler Scope, in the next example we added an User class with a string property `name`, a string property `lastName` and a integer property `age`, you can add any type and nest as many classes as necessary.
 Input XML
-```
+```xml
 <Document>
   <Text>
     {{user.name}} {{user.lastName}}, age: {{user.age}}
@@ -398,7 +405,7 @@ Input XML
 </Document>
 ```
 Compiled
-```
+```xml
 <Document>
   <Text>
     Roger Martinez, age: 20
@@ -406,13 +413,13 @@ Compiled
 </Document>
 ```
 #Supported Types:
-When you use `.AddElementToScope(Key, Value)`, Value is dynamic, that means that it will be evaluated at runtime, so 
+When you use `.AddKey(Key, Value)`, Value is dynamic, that means that it will be evaluated at runtime, so 
 It should support all kind of types, enums, classes, all elements and commands could be nested with no problem.
 #Performance
 from `<element ForEach="element in elements">{{element}}</element>` and elements equals to an array of 10,000 integers Core i5 @ 2.3 GHz took an average of 300 ms to compile in release.
 
 Sometimes Xml files contains elements that you don’t need to compile. to improve performance compile only what you need.
-```
+```c#
 var onlyContet = compiler.CompileXml(new StringReader(SourceBox.Text), 
                  x => x.Children.First(y => y.Name == "content")); 
 ```
