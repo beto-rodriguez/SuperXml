@@ -5,19 +5,19 @@
   <height>{{height}}</height>
   <area>{{width*height}}</area>
   <padding>
-    <bound trRepeat="bound in bounds">{{bound}}</bound>
+    <bound sxRepeat="bound in bounds">{{bound}}</bound>
   </padding>
   <content>
-    <element trRepeat="element in elements" trIf="element.Age > 25">
+    <element sxRepeat="element in elements" trIf="element.Age > 25">
       <name>{{element.Name}}</name>
       <age>{{element.Age}}</age>
     </element>
   </content>
-  <trRun trRepeat="a in numbers">
-    <trRun trRepeat="b in numbers">
+  <sxRun sxRepeat="a in numbers">
+    <sxRun sxRepeat="b in numbers">
       from a local scope variable {{a}}, {{b}}
       from an array: {{numbers[0]}},
       from parent scope: {{$parent.$index}},
-    </trRun>
-  </trRun>
+    </sxRun>
+  </sxRun>
 </document>

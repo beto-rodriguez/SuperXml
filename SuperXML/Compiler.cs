@@ -30,7 +30,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using NCalc;
 
-namespace Templator
+namespace SuperXML
 {
     public class Compiler
     {
@@ -41,9 +41,9 @@ namespace Templator
 
         static Compiler()
         {
-            RepeaterKey = "trRepeat";
-            IfKey = "trIf";
-            TemplateKey = "trRun";
+            RepeaterKey = "sxRepeat";
+            IfKey = "sxIf";
+            TemplateKey = "sxRun";
             IsExpressionRegex = new Regex("(?<={{).*?(?=}})");
             ForEachRegex =
                 new Regex(@"^\s*([a-zA-Z_]+[\w]*)\s+in\s+(([a-zA-Z][\w]*(\.[a-zA-Z][\w]*)*)|\[(.+)(,\s*.+)*\])\s*$",
@@ -106,7 +106,7 @@ namespace Templator
         /// <returns></returns>
         public string CompileString(string input)
         {
-            var template = "<Tor.string>"+input+"</Tor.string>";
+            var template = "<sx.string>"+input+"</sx.string>";
             using (var reader = XmlReader.Create(new StringReader(template)))
             {
                 var output = new StringBuilder();
@@ -116,7 +116,7 @@ namespace Templator
                     var compiled = _readXml(reader);
                     compiled.Run(writer);
                 }
-                return output.ToString().Replace("<Tor.string>", "").Replace("</Tor.string>", "");
+                return output.ToString().Replace("<sx.string>", "").Replace("</sx.string>", "");
             }
         }
 

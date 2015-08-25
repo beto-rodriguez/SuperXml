@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows;
-using Templator;
+using SuperXML;
 
 namespace Test
 {

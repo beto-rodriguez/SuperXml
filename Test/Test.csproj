@@ -108,9 +108,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SuperXML\Templator.csproj">
+    <ProjectReference Include="..\SuperXML\SuperXml.csproj">
       <Project>{70c20bf5-b4bf-49f6-8485-57cea42b9ffe}</Project>
-      <Name>Templator</Name>
+      <Name>SuperXml</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

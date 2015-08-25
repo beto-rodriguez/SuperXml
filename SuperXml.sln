@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Templator", "SuperXML\Templator.csproj", "{70C20BF5-B4BF-49F6-8485-57CEA42B9FFE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperXml", "SuperXML\SuperXml.csproj", "{70C20BF5-B4BF-49F6-8485-57CEA42B9FFE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{F72DF845-52FD-4163-B276-BEDF8E6D4826}"
 EndProject

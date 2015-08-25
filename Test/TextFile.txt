@@ -1,20 +1,20 @@
 ﻿Hello {{name}}, you are a document with a size of {{width}}x{{height}} and an area of {{width*height}}
 
 now here is a list with your bounds:
-  <trRun trRepeat="b in bounds">-value {{$index}}: {{b}}
-  </trRun>
+  <sxRun trRepeat="b in bounds">-value {{$index}}: {{b}}
+  </sxRun>
 
 now here you can see a filtered list of clases
-  <trRun trRepeat="e in elements" trIf="e.Age > 25">-{{e.Name}}, age {{e.Age}}
-  </trRun>
+  <sxRun trRepeat="e in elements" trIf="e.Age > 25">-{{e.Name}}, age {{e.Age}}
+  </sxRun>
 
-  <trRun trRepeat="row in numbers">
-    <trRun trRepeat="col in numbers" >
+  <sxRun trRepeat="row in numbers">
+    <sxRun trRepeat="col in numbers" >
 		<element row="{{row}}" column="{{col}}">
 			a) from a local scope variable {{row | currency}}, {{col}}
 			b) from an array: {{numbers[0]}}
 			c) from parent scope: {{$parent.$index}}
 			d) is it even? {{if($even, 'yes', 'nope')}}
 		</element>      
-    </trRun>
-  </trRun>
+    </sxRun>
+  </sxRun>
