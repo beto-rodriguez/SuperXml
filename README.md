@@ -1,4 +1,4 @@
-# </> SuperXml
+# <SuperXml/>
 
 SuperXml is just a light weight and easy to use template engine library, useful to create string and Xml templates.
 
