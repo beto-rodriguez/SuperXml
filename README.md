@@ -209,8 +209,8 @@ will compile as
   </element>
 </doc>
  ```
-#HTML
-Coming Soon...
+#Need more?
+[See included example](https://github.com/beto-rodriguez/SuperXml/tree/master/Test)
 #If Command
 Evaluates if the element should be included according to a condition. A condition can include everything supported by ncalc (most of common things). **Examples**:
 * `<MyElement sxIf="10 > 6"/>` numeric.
