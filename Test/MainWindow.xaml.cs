@@ -32,27 +32,32 @@ namespace Test
 
         private void CompileClick(object sender, RoutedEventArgs e)
         {
-            var compiler = new Compiler()
-                .AddKey("name", "Excel")
-                .AddKey("width", 100)
-                .AddKey("height", 500)
-                .AddKey("bounds", new[] {10, 0, 10, 0})
-                .AddKey("elements", new []
-                {
-                    new User {Name = "John", Age=13},
-                    new User {Name = "Maria", Age=57},
-                    new User {Name = "Mark", Age=23},
-                    new User {Name = "Edit", Age=82},
-                    new User {Name = "Susan", Age=37}
-                })
-                .AddKey("numbers", _generateInts(10000));
 
-            
+            var compiler = new Compiler()
+                .AddKey("m", new ViewModel
+                {
+                    Name = "Excel",
+                    Width = 100,
+                    Height = 300,
+                    Bounds = new List<int>
+                    {
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
+                    },
+                    Users = new List<User>
+                    {
+                        new User {Name = "John", Age = 13},
+                        new User {Name = "Maria", Age = 57},
+                        new User {Name = "Mark", Age = 23},
+                        new User {Name = "Edit", Age = 82},
+                        new User {Name = "Susan", Age = 37}
+                    }
+                });
 
             var startedTime = DateTime.Now;
-            //var compiled = compiler.CompileXml(new StringReader(SourceBox.Text));
-            //var onlyContet = compiler.Compile(new StringReader(SourceBox.Text),
-            //    x => x.Children.First(y => y.Name == "content"));
             var compiledAsString = compiler.CompileString(SourceBox.Text);
             ResultBlock.Text = "Compilation total time " + (DateTime.Now - startedTime).TotalMilliseconds + "ms";
 
@@ -69,7 +74,7 @@ namespace Test
 
 
             //String Exmaple
-            using (var sr = new StreamReader(AppDomain.CurrentDomain.BaseDirectory + "TextFile.txt"))
+            using (var sr = new StreamReader(AppDomain.CurrentDomain.BaseDirectory + "testfile.xml"))
             {
                 SourceBox.Text = sr.ReadToEnd();
             }
@@ -80,5 +85,15 @@ namespace Test
             public string Name { get; set; }
             public int Age { get; set; }
         } 
+
+        public class ViewModel
+        {
+            public string Name { get; set; }
+            public int Width { get; set; }
+            public int Height { get; set; }
+            public List<int> Bounds { get; set; }
+            public List<User> Users { get; set; } 
+            public User NullUser { get; set; }
+        }
     }
 }

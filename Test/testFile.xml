@@ -1,23 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8" ?> 
+﻿
 <document>
-  <name>my name is {{name}}</name>
-  <width>{{width}}</width>
-  <height>{{height}}</height>
-  <area>{{width*height}}</area>
+  <name>my name is {{m.Name}}</name>
+  <width>{{m.Width}}</width>
+  <height>{{m.Height}}</height>
+  <area>{{m.Width*m.Height}}</area>
   <padding>
-    <bound sxRepeat="bound in bounds">{{bound}}</bound>
+    <bound sxRepeat="bound in m.Bounds">{{bound}}</bound>
   </padding>
   <content>
-    <element sxRepeat="element in elements" trIf="element.Age > 25">
-      <name>{{element.Name}}</name>
-      <age>{{element.Age}}</age>
+    <element sxRepeat="user in m.Users" sxIf="user.Age > 25">
+      <name>{{user.Name}}</name>
+      <age>{{user.Age}}</age>
     </element>
   </content>
-  <sxRun sxRepeat="a in numbers">
-    <sxRun sxRepeat="b in numbers">
-      from a local scope variable {{a}}, {{b}}
-      from an array: {{numbers[0]}},
-      from parent scope: {{$parent.$index}},
-    </sxRun>
-  </sxRun>
+  <grid>
+    <row sxRepeat="row in m.Bounds" index="{{$index}}">
+      <column sxRepeat="col in m.Bounds" index="{{$index}}">
+        this is row {{row}} and column {{col}}.
+        accessing an array or a generic List {{m.Bounds[0]}}.
+        row number is {{$parent.$index}}.
+      </column>
+    </row>
+  </grid>
 </document>

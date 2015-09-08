@@ -21,6 +21,7 @@
 //SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -634,7 +635,8 @@ namespace SuperXML
                 dynamic r = obj;
                 foreach (var child in Children)
                 {
-                    if (r.GetType().IsArray)
+                    var t = r.GetType();
+                    if (t.IsArray || obj is IEnumerable)
                     {
                         int index;
                         int.TryParse(child, out index);

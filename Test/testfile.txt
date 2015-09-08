@@ -1,0 +1,22 @@
+﻿Hello {{m.Name}}, you are a document with a size of {{m.Width}}x{{m.Height}} and an area of {{m.Width*m.Height}}
+
+now here is a list with your bounds:
+  <sxRun sxRepeat="b in m.Bounds">bound: {{$index}}: {{b}}
+  </sxRun>
+
+now here you can see a filtered list of clases
+  <sxRun sxRepeat="user in m.Users" sxIf="user.Age > 25">-{{user.Name}}, age {{user.Age}}
+  </sxRun>
+
+here we are testing a null value 
+
+  <sxRun sxRepeat="row in m.Bounds">
+    <sxRun sxRepeat="col in m.Bounds" >
+		<element row="{{row}}" column="{{col}}">
+			a) from a local scope variable {{row | currency}}, {{col}}
+			b) from an array: {{m.Bounds[0]}}
+			c) from parent scope: {{$parent.$index}}
+			d) is it even? {{if($even, 'yes', 'nope')}}
+		</element>      
+    </sxRun>
+  </sxRun>
