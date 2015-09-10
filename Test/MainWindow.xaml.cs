@@ -54,6 +54,11 @@ namespace Test
                         new User {Name = "Mark", Age = 23},
                         new User {Name = "Edit", Age = 82},
                         new User {Name = "Susan", Age = 37}
+                    },
+                    NullUser = new User
+                    {
+                        Name = null,
+                        Age = 10
                     }
                 });
 

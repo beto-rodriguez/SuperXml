@@ -8,7 +8,7 @@ now here you can see a filtered list of clases
   <sxRun sxRepeat="user in m.Users" sxIf="user.Age > 25">-{{user.Name}}, age {{user.Age}}
   </sxRun>
 
-here we are testing a null value 
+special test {{m.NullUser.age}},{{m.NullUser.Name}}
 
   <sxRun sxRepeat="row in m.Bounds">
     <sxRun sxRepeat="col in m.Bounds" >
