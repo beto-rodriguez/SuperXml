@@ -414,9 +414,18 @@ Compiled
   </Text>
 </Document>
 ```
-#Supported Types:
+#Support
+
+<h4>Types</h4>
 When you use `.AddKey(Key, Value)`, Value is dynamic, that means that it will be evaluated at runtime, so 
-It should support all kind of types, enums, classes, all elements and commands could be nested with no problem.
+It should support all kind of types, enums, classes.
+
+<h4>.Net</h4>
+`.net` framework version 4 or greater
+
+<h4>More</h4>
+ All elements and commands could be nested with no problem.
+
 #Performance
 from `<element ForEach="element in elements">{{element}}</element>` and elements equals to an array of 10,000 integers Core i5 @ 2.3 GHz took an average of 300 ms to compile in release.
 
