@@ -58,6 +58,13 @@ namespace SuperXML
                     double d;
                     double.TryParse(s, out d);
                     return d.ToString("C");
+                },
+                ["nullable"] = x =>
+                {
+                    if(x.ToString() == false.ToString())
+                        return "";
+
+                    return x.ToString();
                 }
             };
         }

@@ -37,6 +37,7 @@ namespace Test
                 .AddKey("m", new ViewModel
                 {
                     Name = "Excel",
+                    Date = new DateTime?(),
                     Width = 100,
                     Height = 300,
                     Bounds = new List<int>
@@ -94,6 +95,7 @@ namespace Test
         public class ViewModel
         {
             public string Name { get; set; }
+            public DateTime? Date { get; set; }
             public int Width { get; set; }
             public int Height { get; set; }
             public List<int> Bounds { get; set; }

@@ -4,6 +4,7 @@
   <width>{{m.Width}}</width>
   <height>{{m.Height}}</height>
   <area>{{m.Width*m.Height}}</area>
+  <date>{{date | nullable}}</date>
   <padding>
     <bound sxRepeat="bound in m.Bounds">{{bound}}</bound>
   </padding>
