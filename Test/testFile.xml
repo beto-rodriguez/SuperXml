@@ -1,7 +1,7 @@
 ﻿
 <document>
   <name>my name is {{m.Name}}</name>
-  <date>{{m.Date}}</date>
+  <date>{{m.Date | stringFormat("yyyy-MM-dd hh:mm:ss")}}</date>
   <width>{{m.Width}}</width>
   <height>{{m.Height}}</height>
   <area>{{m.Width*m.Height}}</area>

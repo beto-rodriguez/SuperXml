@@ -49,6 +49,7 @@ namespace SuperXML
             ForEachRegex =
                 new Regex(@"^\s*([a-zA-Z_]+[\w]*)\s+in\s+(([a-zA-Z][\w]*(\.[a-zA-Z][\w]*)*)|\[(.+)(,\s*.+)*\])\s*$",
                 RegexOptions.Singleline);
+            StringFormatRegex = new Regex(@"(?<=\("").+?(?=""\))");
             Filters = new Dictionary<string, Func<object, string>>
             {
                 ["currency"] = x =>
@@ -58,8 +59,15 @@ namespace SuperXML
                     double d;
                     double.TryParse(s, out d);
                     return d.ToString("C");
+                },
+                ["stringFormat"] = x =>
+                {
+                    var result = ((dynamic)x).Result;
+                    var format = ((dynamic)x).Format;
+
+                    return result.ToString(format);
                 }
-            };
+        };
         }
 
         public static string RepeaterKey { get; set; }
@@ -70,6 +78,7 @@ namespace SuperXML
 
         private static readonly Regex IsExpressionRegex;
         private static readonly Regex ForEachRegex;
+        private static readonly Regex StringFormatRegex;
         private static readonly char[] ValidStartName =
         {
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -590,9 +599,23 @@ namespace SuperXML
                     try
                     {
                         var result = e.Evaluate();
-                        return Filter != null 
-                            ? Filters[Filter](result)
-                            : result.ToString();
+                        if(Filter != null)
+                        {
+                            if(Filter.StartsWith("stringFormat"))
+                            {
+                                if(!string.IsNullOrEmpty(result.ToString()))
+                                {
+                                    string format = StringFormatRegex.Match(Filter).Value;
+                                    return Filters["stringFormat"](new { Result = result, Format = format });
+                                }
+                            }
+                            else
+                            {
+                                return Filters[Filter](result);
+                            }
+                        }
+
+                        return result.ToString();
                     }
                     catch
                     {

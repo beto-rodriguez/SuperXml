@@ -37,7 +37,7 @@ namespace Test
                 .AddKey("m", new ViewModel
                 {
                     Name = "Excel",
-                    Date = new DateTime?(),
+                    Date = DateTime.Now,
                     Width = 100,
                     Height = 300,
                     Bounds = new List<int>
