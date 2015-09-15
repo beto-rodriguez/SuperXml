@@ -59,9 +59,12 @@ namespace Test
                     NullUser = new User
                     {
                         Name = null,
-                        Age = 10
+                        Age = 10,
+                        Date = new DateTime?()
                     }
                 });
+
+            Compiler.OnNullOrNotFound = "";
 
             var startedTime = DateTime.Now;
             var compiledAsString = compiler.CompileString(SourceBox.Text);
@@ -90,6 +93,7 @@ namespace Test
         {
             public string Name { get; set; }
             public int Age { get; set; }
+            public DateTime? Date { get; set; }
         } 
 
         public class ViewModel

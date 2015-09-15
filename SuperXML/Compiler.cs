@@ -58,13 +58,6 @@ namespace SuperXML
                     double d;
                     double.TryParse(s, out d);
                     return d.ToString("C");
-                },
-                ["nullable"] = x =>
-                {
-                    if(x.ToString() == false.ToString())
-                        return "";
-
-                    return x.ToString();
                 }
             };
         }
@@ -72,6 +65,7 @@ namespace SuperXML
         public static string RepeaterKey { get; set; }
         public static string IfKey { get; set; }
         public static string TemplateKey  { get; set; }
+        public static dynamic OnNullOrNotFound { get; set; } = false;
         public static Dictionary<string, Func<object, string>> Filters { get; }
 
         private static readonly Regex IsExpressionRegex;
@@ -359,7 +353,7 @@ namespace SuperXML
                         obj = property.GetValue(obj);
                         property = new PropertyAccess(keys[level]);
                         var t = obj.GetType();
-                        obj = t == typeof(Dictionary<string, dynamic>) || t.IsArray 
+                        obj = t == typeof(Dictionary<string, dynamic>) || t.IsArray
                             ? obj[property.Name]
                             : t.GetProperty(property.Name).GetValue(obj, null);
                         level++;
@@ -577,7 +571,7 @@ namespace SuperXML
                             sb.Append("[p");
                             sb.Append(p);
                             sb.Append("]");
-                            parameters.Add("p" + p, Parent.GetValueFromScope(i.Value) ?? false);   
+                            parameters.Add("p" + p, Parent.GetValueFromScope(i.Value) ?? OnNullOrNotFound);   
                             p++;
                         }
                         else
