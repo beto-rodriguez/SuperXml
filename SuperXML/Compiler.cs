@@ -256,7 +256,7 @@ namespace SuperXML
                         if (reader.IsEmptyElement) goto case XmlNodeType.EndElement;
                         break;
                     case XmlNodeType.Text:
-                        new XmlElement(BufferCommands.StringContent)
+                        element = new XmlElement(BufferCommands.StringContent)
                         {
                             Value = reader.Value,
                             Parent = element
@@ -447,7 +447,15 @@ namespace SuperXML
                             foreach (var attribute in Attributes.Where(attribute => attribute.Name != RepeaterKey
                                                                                     && attribute.Name != IfKey))
                             {
-                                writer.WriteAttributeString(attribute.Name, Inject(attribute.Value));
+                                if (attribute.Name.Contains(":"))
+                                {
+                                    var names = attribute.Name.Split(':');
+                                    writer.WriteAttributeString(names[0], names[1], null, Inject(attribute.Value));
+                                }
+                                else
+                                {
+                                    writer.WriteAttributeString(attribute.Name, Inject(attribute.Value));
+                                }
                             }
                             foreach (var child in Children)
                             {
