@@ -256,11 +256,13 @@ namespace SuperXML
                         if (reader.IsEmptyElement) goto case XmlNodeType.EndElement;
                         break;
                     case XmlNodeType.Text:
-                        element = new XmlElement(BufferCommands.StringContent)
+#pragma warning disable RECS0026 // Possible unassigned object created by 'new'
+                        new XmlElement(BufferCommands.StringContent)
                         {
                             Value = reader.Value,
                             Parent = element
                         };
+#pragma warning restore RECS0026 // Possible unassigned object created by 'new'
                         break;
                     case XmlNodeType.EndElement:
                         element = element.Parent;
