@@ -1,9 +1,9 @@
-﻿
-<document>
-  <name>my name is {{m.Name}}</name>
+﻿<document xmlns:xlink="http://www.w3.org/1999/xlink">
+  <name xlink:type="resource" >my name is {{m.Name}}</name>
   <width>{{m.Width}}</width>
   <height>{{m.Height}}</height>
   <area>{{m.Width*m.Height}}</area>
+  <dateTime>{{m.Now:yyyy-MM-ddTHH:mm:sszzz}}</dateTime>
   <padding>
     <bound sxRepeat="bound in m.Bounds">{{bound}}</bound>
   </padding>

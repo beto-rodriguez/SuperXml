@@ -256,11 +256,13 @@ namespace SuperXML
                         if (reader.IsEmptyElement) goto case XmlNodeType.EndElement;
                         break;
                     case XmlNodeType.Text:
+#pragma warning disable RECS0026 // Possible unassigned object created by 'new'
                         new XmlElement(BufferCommands.StringContent)
                         {
                             Value = reader.Value,
                             Parent = element
                         };
+#pragma warning restore RECS0026 // Possible unassigned object created by 'new'
                         break;
                     case XmlNodeType.EndElement:
                         element = element.Parent;
@@ -319,7 +321,7 @@ namespace SuperXML
             /// Scope of current Element.
             /// </summary>
             public Dictionary<string, dynamic> Scope { get; set; }
-            public dynamic GetValueFromScope(string propertyName)
+            public dynamic GetValueFromScope(string propertyName, string format = null)
             {
                 try
                 {
@@ -358,7 +360,9 @@ namespace SuperXML
                         level++;
                     }
 
-                    return property.GetValue(obj);
+                    if (string.IsNullOrWhiteSpace(format))
+                        return property.GetValue(obj);
+                    return property.GetValue(obj).ToString(format);
                 }
                 catch (Exception)
                 {
@@ -447,7 +451,15 @@ namespace SuperXML
                             foreach (var attribute in Attributes.Where(attribute => attribute.Name != RepeaterKey
                                                                                     && attribute.Name != IfKey))
                             {
-                                writer.WriteAttributeString(attribute.Name, Inject(attribute.Value));
+                                if (attribute.Name.Contains(":"))
+                                {
+                                    var names = attribute.Name.Split(':');
+                                    writer.WriteAttributeString(names[0], names[1], null, Inject(attribute.Value));
+                                }
+                                else
+                                {
+                                    writer.WriteAttributeString(attribute.Name, Inject(attribute.Value));
+                                }
                             }
                             foreach (var child in Children)
                             {
@@ -469,6 +481,7 @@ namespace SuperXML
                     Items = new List<CExpressionItem>();
                     Parent = parent;
                     OriginalExpression = expression;
+                    CExpressionItem item = null;
 
                     var read = new List<char>();
                     var type = LectureType.Unknow;
@@ -478,6 +491,19 @@ namespace SuperXML
                         switch (type)
                         {
                             case LectureType.Variable:
+                                if (c == ':')
+                                {
+                                    var l = new string(read.ToArray());
+                                    item = new CExpressionItem
+                                    {
+                                        FromScope = !KeyWords.Contains(l),
+                                        Value = l
+                                    };
+                                    Items.Add(item);
+                                    read.Clear();
+                                    type = LectureType.Format;
+                                    continue;
+                                }
                                 if (!ValidContentName.Contains(c))
                                 {
                                     var l = new string(read.ToArray());
@@ -539,7 +565,7 @@ namespace SuperXML
                         }
                         read.Add(c);
                     }
-                    if (type != LectureType.Filter)
+                    if (type != LectureType.Filter && type != LectureType.Format)
                     {
                         Items.Add(new CExpressionItem
                         {
@@ -547,9 +573,13 @@ namespace SuperXML
                             Value = new string(read.ToArray())
                         });
                     }
-                    else
+                    else if(type == LectureType.Filter) 
                     {
                         Filter = new string(read.ToArray()).Replace("|", "").Trim();
+                    }
+                    else if (type == LectureType.Format)
+                    {
+                        item.Format = new string(read.ToArray()).Trim();
                     }
                 }
 
@@ -570,12 +600,15 @@ namespace SuperXML
                             sb.Append("[p");
                             sb.Append(p);
                             sb.Append("]");
-                            parameters.Add("p" + p, Parent.GetValueFromScope(i.Value) ?? false);   
+                            parameters.Add("p" + p, Parent.GetValueFromScope(i.Value, i.Format) ?? false);   
                             p++;
                         }
                         else
                         {
-                            sb.Append(i.Value);
+                            if (string.IsNullOrWhiteSpace(i.Format))
+                                sb.Append(i.Value);
+                            else
+                                sb.Append(i.Value.ToString());
                         }
                     }
 
@@ -605,6 +638,7 @@ namespace SuperXML
             {
                 public bool FromScope { get; set; }
                 public string Value { get; set; }
+                public string Format { get; set; }
             }
         }
 
@@ -660,7 +694,7 @@ namespace SuperXML
 
         private enum LectureType
         {
-            Variable, String, Filter, Unknow, Constant
+            Variable, String, Filter, Unknow, Constant, Format
         }
     }
 }

@@ -59,7 +59,8 @@ namespace Test
                     {
                         Name = null,
                         Age = 10
-                    }
+                    },
+                    Now = DateTime.Now
                 });
 
             var startedTime = DateTime.Now;
@@ -99,6 +100,7 @@ namespace Test
             public List<int> Bounds { get; set; }
             public List<User> Users { get; set; } 
             public User NullUser { get; set; }
+            public DateTime Now { get; set; }
         }
     }
 }
