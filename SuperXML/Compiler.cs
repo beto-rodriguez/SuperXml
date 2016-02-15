@@ -122,33 +122,48 @@ namespace SuperXML
             }
         }
 
-        /// <summary>
-        /// Compiles a Xml template with specified URI.
-        /// </summary>
-        /// <param name="uri"></param>
-        /// <param name="root">
-        ///     Set the root to compile, to improve performance. 
-        ///     example: x => x.Children.First(y => x.Name == "MyElement")
-        /// </param>
-        /// <returns></returns>
-        public string CompileXml(string uri, Func<XmlElement, XmlElement> root = null)
-        {
-            using (var reader = XmlReader.Create(uri))
-            {
-                var output = new StringBuilder();
-                var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
-                using (var writer = XmlWriter.Create(output, ws))
-                {
-                    var compiled = _readXml(reader);
-                    if (root != null)
-                    {
-                        compiled = root(compiled);
-                    }
-                    compiled.Run(writer);
-                }
-                return output.ToString();
-            }
-        }
+		/// <summary>
+		/// Compiles a Xml template with specified URI.
+		/// </summary>
+		/// <param name="uri"></param>
+		/// <param name="root">
+		///     Set the root to compile, to improve performance. 
+		///     example: x => x.Children.First(y => x.Name == "MyElement")
+		/// </param>
+		/// <returns></returns>
+		public string CompileXml(string uri, Func<XmlElement, XmlElement> root = null)
+		{
+			var output = new StringBuilder();
+			StringWriter writer = new StringWriter(output);
+			CompileXml(uri, writer, null);
+			return output.ToString();
+		}
+
+		/// <summary>
+		/// Compiles a Xml template with specified URI.
+		/// </summary>
+		/// <param name="uri"></param>
+		/// <param name="root">
+		///     Set the root to compile, to improve performance. 
+		///     example: x => x.Children.First(y => x.Name == "MyElement")
+		/// </param>
+		/// <returns></returns>
+		public void CompileXml(string uri, TextWriter output, Func<XmlElement, XmlElement> root = null)
+		{
+			using (var reader = XmlReader.Create(uri))
+			{
+				var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
+				using (var writer = XmlWriter.Create(output, ws))
+				{
+					var compiled = _readXml(reader);
+					if (root != null)
+					{
+						compiled = root(compiled);
+					}
+					compiled.Run(writer);
+				}
+			}
+		}
 
         /// <summary>
         /// Compiles a Xml template using the specified stream with default settings. 
@@ -161,22 +176,38 @@ namespace SuperXML
         /// <returns></returns>
         public string CompileXml(Stream stream, Func<XmlElement, XmlElement> root = null)
         {
-            using (var reader = XmlReader.Create(stream))
-            {
-                var output = new StringBuilder();
-                var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
-                using (var writer = XmlWriter.Create(output, ws))
-                {
-                    var compiled = _readXml(reader);
-                    if (root != null)
-                    {
-                        compiled = root(compiled);
-                    }
-                    compiled.Run(writer);
-                }
-                return output.ToString();
-            }
+			var output = new StringBuilder();
+			StringWriter writer = new StringWriter(output);
+			CompileXml(stream, writer, null);
+			return output.ToString();
         }
+
+		/// <summary>
+		/// Compiles a Xml template using the specified stream with default settings. 
+		/// </summary>
+		/// <param name="input"></param>
+		/// <param name="root">
+		///     Set the root to compile, to improve performance. 
+		///     example: x => x.Children.First(y => x.Name == "MyElement")
+		/// </param>
+		/// <param name="output"></param>
+		/// <returns></returns>
+		public void CompileXml(Stream input, TextWriter output, Func<XmlElement, XmlElement> root = null)
+		{
+			using (var reader = XmlReader.Create(input))
+			{
+				var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
+				using (var writer = XmlWriter.Create(output, ws))
+				{
+					var compiled = _readXml(reader);
+					if (root != null)
+					{
+						compiled = root(compiled);
+					}
+					compiled.Run(writer);
+				}
+			}
+		}
 
         /// <summary>
         /// Compiles a Xml template by using the specified text reader. 
@@ -189,22 +220,37 @@ namespace SuperXML
         /// <returns></returns>
         public string CompileXml(TextReader textReader, Func<XmlElement, XmlElement> root = null)
         {
-            using (var reader = XmlReader.Create(textReader))
-            {
-                var output = new StringBuilder();
-                var ws = XmlWriterSettings ?? new XmlWriterSettings {Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true};
-                using (var writer = XmlWriter.Create(output, ws))
-                {
-                    var compiled = _readXml(reader);
-                    if (root != null)
-                    {
-                        compiled = root(compiled);
-                    }
-                    compiled.Run(writer);
-                }
-                return output.ToString();
-            }
+			var output = new StringBuilder();
+			StringWriter writer = new StringWriter(output);
+			CompileXml(textReader, writer, null);
+			return output.ToString();
         }
+
+		/// <summary>
+		/// Compiles a Xml template by using the specified text reader. 
+		/// </summary>
+		/// <param name="textReader"></param>
+		/// <param name="root">
+		///     Set the root to compile, to improve performance. 
+		///     example: x => x.Children.First(y => x.Name == "MyElement")
+		/// </param>
+		/// <returns></returns>
+		public void CompileXml(TextReader textReader, TextWriter output, Func<XmlElement, XmlElement> root = null)
+		{
+			using (var reader = XmlReader.Create(textReader))
+			{
+				var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
+				using (var writer = XmlWriter.Create(output, ws))
+				{
+					var compiled = _readXml(reader);
+					if (root != null)
+					{
+						compiled = root(compiled);
+					}
+					compiled.Run(writer);
+				}
+			}
+		}
 
         /// <summary>
         /// Compiles a Xml template with a specified XmlReader
