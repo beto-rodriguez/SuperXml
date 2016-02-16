@@ -51,13 +51,14 @@ namespace SuperXML
                 RegexOptions.Singleline);
             Filters = new Dictionary<string, Func<object, string>>
             {
-                ["currency"] = x =>
-                {
-                    //this is simple and dirty to support all numeric types.
-                    var s = x.ToString();
-                    double d;
-                    double.TryParse(s, out d);
-                    return d.ToString("C");
+                {"currency", x =>
+                    {
+                        //this is simple and dirty to support all numeric types.
+                        var s = x.ToString();
+                        double d;
+                        double.TryParse(s, out d);
+                        return d.ToString("C");
+                    }
                 }
             };
         }
@@ -65,7 +66,7 @@ namespace SuperXML
         public static string RepeaterKey { get; set; }
         public static string IfKey { get; set; }
         public static string TemplateKey  { get; set; }
-        public static Dictionary<string, Func<object, string>> Filters { get; }
+        public static Dictionary<string, Func<object, string>> Filters { get; private set; }
 
         private static readonly Regex IsExpressionRegex;
         private static readonly Regex ForEachRegex;
@@ -132,9 +133,25 @@ namespace SuperXML
         /// <returns></returns>
         public string CompileXml(string uri, Func<XmlElement, XmlElement> root = null)
         {
+            var output = new StringBuilder();
+            StringWriter writer = new StringWriter(output);
+            CompileXml(uri, writer, null);
+            return output.ToString();
+        }
+
+        /// <summary>
+        /// Compiles a Xml template with specified URI.
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <param name="root">
+        ///     Set the root to compile, to improve performance. 
+        ///     example: x => x.Children.First(y => x.Name == "MyElement")
+        /// </param>
+        /// <returns></returns>
+        public void CompileXml(string uri, TextWriter output, Func<XmlElement, XmlElement> root = null)
+        {
             using (var reader = XmlReader.Create(uri))
             {
-                var output = new StringBuilder();
                 var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
                 using (var writer = XmlWriter.Create(output, ws))
                 {
@@ -145,7 +162,6 @@ namespace SuperXML
                     }
                     compiled.Run(writer);
                 }
-                return output.ToString();
             }
         }
 
@@ -160,9 +176,26 @@ namespace SuperXML
         /// <returns></returns>
         public string CompileXml(Stream stream, Func<XmlElement, XmlElement> root = null)
         {
-            using (var reader = XmlReader.Create(stream))
+            var output = new StringBuilder();
+            StringWriter writer = new StringWriter(output);
+            CompileXml(stream, writer, null);
+            return output.ToString();
+        }
+
+        /// <summary>
+        /// Compiles a Xml template using the specified stream with default settings. 
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="root">
+        ///     Set the root to compile, to improve performance. 
+        ///     example: x => x.Children.First(y => x.Name == "MyElement")
+        /// </param>
+        /// <param name="output"></param>
+        /// <returns></returns>
+        public void CompileXml(Stream input, TextWriter output, Func<XmlElement, XmlElement> root = null)
+        {
+            using (var reader = XmlReader.Create(input))
             {
-                var output = new StringBuilder();
                 var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
                 using (var writer = XmlWriter.Create(output, ws))
                 {
@@ -173,7 +206,6 @@ namespace SuperXML
                     }
                     compiled.Run(writer);
                 }
-                return output.ToString();
             }
         }
 
@@ -188,10 +220,26 @@ namespace SuperXML
         /// <returns></returns>
         public string CompileXml(TextReader textReader, Func<XmlElement, XmlElement> root = null)
         {
+            var output = new StringBuilder();
+            StringWriter writer = new StringWriter(output);
+            CompileXml(textReader, writer, null);
+            return output.ToString();
+        }
+
+        /// <summary>
+        /// Compiles a Xml template by using the specified text reader. 
+        /// </summary>
+        /// <param name="textReader"></param>
+        /// <param name="root">
+        ///     Set the root to compile, to improve performance. 
+        ///     example: x => x.Children.First(y => x.Name == "MyElement")
+        /// </param>
+        /// <returns></returns>
+        public void CompileXml(TextReader textReader, TextWriter output, Func<XmlElement, XmlElement> root = null)
+        {
             using (var reader = XmlReader.Create(textReader))
             {
-                var output = new StringBuilder();
-                var ws = XmlWriterSettings ?? new XmlWriterSettings {Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true};
+                var ws = XmlWriterSettings ?? new XmlWriterSettings { Indent = true, Encoding = Encoding.UTF8, OmitXmlDeclaration = true };
                 using (var writer = XmlWriter.Create(output, ws))
                 {
                     var compiled = _readXml(reader);
@@ -201,7 +249,6 @@ namespace SuperXML
                     }
                     compiled.Run(writer);
                 }
-                return output.ToString();
             }
         }
 
@@ -286,7 +333,7 @@ namespace SuperXML
                 Type = type;
             }
 
-            private BufferCommands Type { get; }
+            private BufferCommands Type { get; set; }
             /// <summary>
             /// Name of the Element
             /// </summary>
@@ -301,20 +348,21 @@ namespace SuperXML
             /// <summary>
             /// Attributes in the Element
             /// </summary>
-            public List<XmlAttribute> Attributes { get;}
+            public List<XmlAttribute> Attributes { get; private set; }
             public XmlElement Parent
             {
                 get { return _parent; }
                 set
                 {
                     _parent = value;
-                    _parent?.Children.Add(this);
+                    if ((object)Parent != null)
+                        _parent.Children.Add(this);
                 }
             }
             /// <summary>
             /// Gets the children of this element
             /// </summary>
-            public List<XmlElement> Children { get;}
+            public List<XmlElement> Children { get; private set; }
             /// <summary>
             /// Scope of current Element.
             /// </summary>
@@ -394,10 +442,10 @@ namespace SuperXML
                     var even = i%2 == 0;
                     yield return new Dictionary<string, dynamic>
                     {
-                        [repeater] = item,
-                        ["$index"] = i++,
-                        ["$odd"] = !even,
-                        ["$even"] = even
+                        { repeater,  item },
+                        { "$index",  i++ },
+                        { "$odd",  !even },
+                        { "$even",  even }
                     };
                 }
             }
@@ -408,7 +456,7 @@ namespace SuperXML
             private bool If()
             {
                 var at = Attributes.FirstOrDefault(x => x.Name == IfKey);
-                var expression = at?.Value;
+                var expression = (object)at != null ? at.Value : null;
                 if (string.IsNullOrEmpty(expression)) return true;
                 if (_ifCache == null) _ifCache = new CExpression(expression, this);
                 var e = _ifCache.Evaluate();
@@ -553,10 +601,10 @@ namespace SuperXML
                     }
                 }
 
-                private List<CExpressionItem> Items { get; }
-                private XmlElement Parent { get; }
-                private string OriginalExpression { get; }
-                private string Filter { get; }
+                private List<CExpressionItem> Items { get; set; }
+                private XmlElement Parent { get; set; }
+                private string OriginalExpression { get; set; }
+                private string Filter { get; set; }
 
                 public string Evaluate()
                 {
@@ -627,8 +675,8 @@ namespace SuperXML
                 }
             }
 
-            public string Name { get; }
-            public List<string> Children { get; }
+            public string Name { get; private set; }
+            public List<string> Children { get; private set; }
 
             public dynamic GetValue(dynamic obj)
             {
