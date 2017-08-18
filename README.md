@@ -211,6 +211,11 @@ will compile as
  ```
 #Need more?
 [See included example](https://github.com/beto-rodriguez/SuperXml/tree/master/Test)
+#Configuration
+The default value returned when a nullable property is null is False, this can be configured with the following option:
+```c#
+Compiler.OnNullOrNotFound = "";
+```
 #If Command
 Evaluates if the element should be included according to a condition. A condition can include everything supported by ncalc (most of common things). **Examples**:
 * `<MyElement sxIf="10 > 6"/>` numeric.

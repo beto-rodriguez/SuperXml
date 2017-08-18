@@ -37,6 +37,7 @@ namespace Test
                 .AddKey("m", new ViewModel
                 {
                     Name = "Excel",
+                    Date = DateTime.Now,
                     Width = 100,
                     Height = 300,
                     Bounds = new List<int>
@@ -58,9 +59,12 @@ namespace Test
                     NullUser = new User
                     {
                         Name = null,
-                        Age = 10
+                        Age = 10,
+                        Date = new DateTime?()
                     }
                 });
+
+            Compiler.OnNullOrNotFound = "";
 
             var startedTime = DateTime.Now;
             var compiledAsString = compiler.CompileString(SourceBox.Text);
@@ -89,11 +93,13 @@ namespace Test
         {
             public string Name { get; set; }
             public int Age { get; set; }
+            public DateTime? Date { get; set; }
         } 
 
         public class ViewModel
         {
             public string Name { get; set; }
+            public DateTime? Date { get; set; }
             public int Width { get; set; }
             public int Height { get; set; }
             public List<int> Bounds { get; set; }
