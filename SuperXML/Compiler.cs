@@ -457,7 +457,17 @@ namespace SuperXML
                             foreach (var attribute in Attributes.Where(attribute => attribute.Name != RepeaterKey
                                                                                     && attribute.Name != IfKey))
                             {
-                                writer.WriteAttributeString(attribute.Name, Inject(attribute.Value));
+                                if (attribute.Name.Contains(":"))
+                                {
+                                    string[] attributeName = attribute.Name.Split(':');
+                                    string prefix = attributeName[0];
+                                    string loaclName = attributeName[1];
+                                    writer.WriteAttributeString(prefix, loaclName, null, Inject(attribute.Value));
+                                }
+                                else
+                                {
+                                    writer.WriteAttributeString(attribute.Name, Inject(attribute.Value));
+                                }
                             }
                             foreach (var child in Children)
                             {
