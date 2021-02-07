@@ -20,6 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
+using NCalc;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -29,7 +30,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-using NCalc;
 
 namespace SuperXML
 {
@@ -50,6 +50,8 @@ namespace SuperXML
                 new Regex(@"^\s*([a-zA-Z_]+[\w]*)\s+in\s+(([a-zA-Z][\w]*(\.[a-zA-Z][\w]*)*)|\[(.+)(,\s*.+)*\])\s*$",
                 RegexOptions.Singleline);
             StringFormatRegex = new Regex(@"(?<=\("").+?(?=""\))");
+            NameSpaceRegex = new Regex(@"xmlns\:?",RegexOptions.IgnoreCase);
+            AllNameSpaces = new List<XmlNameSpace>();
             Filters = new Dictionary<string, Func<object, string>>
             {
                 ["currency"] = x =>
@@ -76,9 +78,12 @@ namespace SuperXML
         public static dynamic OnNullOrNotFound { get; set; } = false;
         public static Dictionary<string, Func<object, string>> Filters { get; }
 
+        public static List<XmlNameSpace> AllNameSpaces { get; }
+
         private static readonly Regex IsExpressionRegex;
         private static readonly Regex ForEachRegex;
         private static readonly Regex StringFormatRegex;
+        private static readonly Regex NameSpaceRegex;
         private static readonly char[] ValidStartName =
         {
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -94,6 +99,7 @@ namespace SuperXML
 
         private static readonly string[] KeyWords = {"if"};
 
+        private static readonly char ColonSeperator = ':';
         public XmlWriterSettings XmlWriterSettings { get; set; }
 
         public Dictionary<string, dynamic> Scope { get; set; }
@@ -256,11 +262,37 @@ namespace SuperXML
                         for (var i = 0; i < reader.AttributeCount; i++)
                         {
                             reader.MoveToAttribute(i);
-                            element.Attributes.Add(new XmlAttribute
+                            if (NameSpaceRegex.IsMatch(reader.Name))
                             {
-                                Name = reader.Name,
-                                Value = reader.Value
-                            });
+                                XmlNameSpace nsItem = new XmlNameSpace();
+                                nsItem.Uri = reader.Value;
+                                if (reader.Name.IndexOf(ColonSeperator) >= 0)
+                                {
+                                    var AttNames = reader.Name.Split(ColonSeperator);
+                                    nsItem.Prefix = AttNames[0];
+                                    nsItem.NickName = AttNames[AttNames.Length - 1];
+                                    AllNameSpaces.Add(nsItem);
+                                }
+                                else
+                                {
+                                    nsItem.Prefix = "";
+                                    nsItem.NickName = reader.Name;
+                                }
+                                if (!element.HasNamespace)
+                                {
+                                    element.HasNamespace = true;
+                                    element.NameSpaces = new List<XmlNameSpace>();
+                                }
+                                element.NameSpaces.Add(nsItem);
+                            }
+                            else
+                            {
+                                element.Attributes.Add(new XmlAttribute
+                                {
+                                    Name = reader.Name,
+                                    Value = reader.Value
+                                });
+                            }
                         }
                         if (reader.AttributeCount > 0) reader.MoveToElement();
                         if (reader.IsEmptyElement) goto case XmlNodeType.EndElement;
@@ -297,6 +329,14 @@ namespace SuperXML
             }
 
             private BufferCommands Type { get; }
+
+            /// <summary>
+            /// Element whether has namespace
+            /// </summary>
+            public bool HasNamespace { get; set; }
+
+            public List<XmlNameSpace> NameSpaces { get; set; }
+
             /// <summary>
             /// Name of the Element
             /// </summary>
@@ -443,21 +483,78 @@ namespace SuperXML
                 switch (Type)
                 {
                     case BufferCommands.NewElement:
-                        var isTemplate = Name == TemplateKey;
-                        var ns = Attributes.FirstOrDefault(x => x.Name == "xmlns");
+                        var isTemplate = this.Name == TemplateKey;
                         foreach (var scope in Repeater())
                         {
                             Scope = scope;
                             if (!If()) continue;
-                            
+
                             if (!isTemplate)
-                                if (ns != null) writer.WriteStartElement(Name, ns.Value);
-                                else writer.WriteStartElement(Name);
+                            {
+                                if (AllNameSpaces.Count > 0)
+                                {
+                                    if (this.Name.IndexOf(ColonSeperator) >= 0)
+                                    {
+                                        string[] EleNames = this.Name.Split(ColonSeperator);
+                                        string RealName = EleNames.Last();
+                                        var contentNs = AllNameSpaces.FirstOrDefault(x => x.NickName.Equals(EleNames[0]));
+                                        if (!this.HasNamespace)
+                                        {
+                                            writer.WriteStartElement(RealName, contentNs.Uri);
+                                        }
+                                        else
+                                        {
+                                            writer.WriteStartElement(EleNames[0], RealName, contentNs.Uri);
+                                            for (int i = 0; i < NameSpaces.Count(); i++)
+                                            {
+                                                if (NameSpaces[i].NickName != contentNs.NickName)
+                                                {
+                                                    writer.WriteAttributeString(NameSpaces[i].Prefix, NameSpaces[i].NickName, null, NameSpaces[i].Uri);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (this.HasNamespace)
+                                        {
+                                            for (int i = 0; i < this.NameSpaces.Count(); i++)
+                                            {
+                                                var nsItem = this.NameSpaces[i];
+                                                if (i == 0)
+                                                {
+                                                    writer.WriteStartElement(Name, nsItem.Uri);
+                                                }
+                                                else
+                                                {
+                                                    writer.WriteAttributeString(nsItem.Prefix, nsItem.NickName, null, nsItem.Uri);
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            writer.WriteStartElement(Name);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    writer.WriteStartElement(Name);
+                                }
+                            }
 
                             foreach (var attribute in Attributes.Where(attribute => attribute.Name != RepeaterKey
                                                                                     && attribute.Name != IfKey))
                             {
-                                writer.WriteAttributeString(attribute.Name, Inject(attribute.Value));
+                                if (attribute.Name.IndexOf(ColonSeperator) >= 0)
+                                {
+                                    string[] AttNames = attribute.Name.Split(ColonSeperator);
+                                    writer.WriteAttributeString(AttNames[0], AttNames[1], null, Inject(attribute.Value));
+                                }
+                                else
+                                {
+                                    writer.WriteAttributeString(attribute.Name, Inject(attribute.Value));
+                                }
                             }
                             foreach (var child in Children)
                             {
@@ -636,6 +733,13 @@ namespace SuperXML
         {
             public string Name { get; set; }
             public string Value { get; set; }
+        }
+
+        public class XmlNameSpace
+        {
+            public string Prefix { get; set; }
+            public string NickName { get; set; }
+            public string Uri { get; set; }
         }
 
         private class PropertyAccess
